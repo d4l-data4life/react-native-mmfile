@@ -1,9 +1,7 @@
 import { type HybridObject } from 'react-native-nitro-modules'
 
-export interface Mmfile
-  extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+export interface Mmfile extends HybridObject<{ ios: 'c++'; android: 'c++' }> {
   readonly size: number
-
   resize(newSize: number): void
   clear(): void
   append(buffer: ArrayBuffer): void

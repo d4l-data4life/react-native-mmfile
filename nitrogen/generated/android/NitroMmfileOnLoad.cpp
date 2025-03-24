@@ -15,8 +15,6 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
-#include "JHybridMmfileSpec.hpp"
-#include "JHybridEncryptedMmfileSpec.hpp"
 #include "JHybridMmfilePlatformContextSpec.hpp"
 #include "HybridMmfileFactory.hpp"
 #include <NitroModules/JNISharedPtr.hpp>
@@ -31,8 +29,6 @@ int initialize(JavaVM* vm) {
 
   return facebook::jni::initialize(vm, [] {
     // Register native JNI methods
-    margelo::nitro::mmfile::JHybridMmfileSpec::registerNatives();
-    margelo::nitro::mmfile::JHybridEncryptedMmfileSpec::registerNatives();
     margelo::nitro::mmfile::JHybridMmfilePlatformContextSpec::registerNatives();
 
     // Register Nitro Hybrid Objects

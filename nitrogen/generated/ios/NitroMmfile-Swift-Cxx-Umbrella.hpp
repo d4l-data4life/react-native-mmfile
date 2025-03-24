@@ -8,20 +8,11 @@
 #pragma once
 
 // Forward declarations of C++ defined types
-// Forward declaration of `ArrayBuffer` to properly resolve imports.
-namespace NitroModules { class ArrayBuffer; }
-// Forward declaration of `HybridEncryptedMmfileSpec` to properly resolve imports.
-namespace margelo::nitro::mmfile { class HybridEncryptedMmfileSpec; }
 // Forward declaration of `HybridMmfilePlatformContextSpec` to properly resolve imports.
 namespace margelo::nitro::mmfile { class HybridMmfilePlatformContextSpec; }
-// Forward declaration of `HybridMmfileSpec` to properly resolve imports.
-namespace margelo::nitro::mmfile { class HybridMmfileSpec; }
 
 // Include C++ defined types
-#include "HybridEncryptedMmfileSpec.hpp"
 #include "HybridMmfilePlatformContextSpec.hpp"
-#include "HybridMmfileSpec.hpp"
-#include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
 #include <memory>
@@ -37,12 +28,8 @@ namespace margelo::nitro::mmfile { class HybridMmfileSpec; }
 #include <NitroModules/RuntimeError.hpp>
 
 // Forward declarations of Swift defined types
-// Forward declaration of `HybridEncryptedMmfileSpec_cxx` to properly resolve imports.
-namespace NitroMmfile { class HybridEncryptedMmfileSpec_cxx; }
 // Forward declaration of `HybridMmfilePlatformContextSpec_cxx` to properly resolve imports.
 namespace NitroMmfile { class HybridMmfilePlatformContextSpec_cxx; }
-// Forward declaration of `HybridMmfileSpec_cxx` to properly resolve imports.
-namespace NitroMmfile { class HybridMmfileSpec_cxx; }
 
 // Include Swift defined types
 #if __has_include("NitroMmfile-Swift.h")

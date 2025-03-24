@@ -1,6 +1,9 @@
 #include "HybridMmfile.hpp"
 #include <jsi/jsi.h>
 
+namespace margelo::nitro::mmfile
+{
+
 using namespace facebook;
 
 double HybridMmfile::getSize() {
@@ -51,3 +54,5 @@ void HybridEncryptedMmfile::write(double offset, const std::shared_ptr<ArrayBuff
 double HybridEncryptedMmfile::read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) {
     return (double)instance->read((size_t)offset, buffer->data(), buffer->size());
 }
+
+} // namespace margelo::nitro::mmfile

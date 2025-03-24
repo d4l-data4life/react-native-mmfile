@@ -32,8 +32,6 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridMmfileFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridMmfilePlatformContextSpec.cpp
   # Android-specific Nitrogen C++ sources
-  ../nitrogen/generated/android/c++/JHybridMmfileSpec.cpp
-  ../nitrogen/generated/android/c++/JHybridEncryptedMmfileSpec.cpp
   ../nitrogen/generated/android/c++/JHybridMmfilePlatformContextSpec.cpp
 )
 

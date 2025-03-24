@@ -157,7 +157,7 @@ public:
     }
 
     inline uint8x16_t encryptBlock(uint8x16_t block) const {
-        for (int i = 0; i < NUM_ROUNDS - 1; ++i) {
+        for (unsigned i = 0; i < NUM_ROUNDS - 1; ++i) {
             // block = AddRoundKey(block, roundKeys[i])
             // block = SubBytes(block)
             // block = ShiftRows(block)

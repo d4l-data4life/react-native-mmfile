@@ -8,45 +8,11 @@
 #include "NitroMmfile-Swift-Cxx-Bridge.hpp"
 
 // Include C++ implementation defined types
-#include "HybridEncryptedMmfileSpecSwift.hpp"
 #include "HybridMmfilePlatformContextSpecSwift.hpp"
-#include "HybridMmfileSpecSwift.hpp"
 #include "NitroMmfile-Swift-Cxx-Umbrella.hpp"
 
 namespace margelo::nitro::mmfile::bridge::swift {
 
-  // pragma MARK: std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec>
-  std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec> create_std__shared_ptr_margelo__nitro__mmfile__HybridMmfileSpec_(void* _Nonnull swiftUnsafePointer) {
-    NitroMmfile::HybridMmfileSpec_cxx swiftPart = NitroMmfile::HybridMmfileSpec_cxx::fromUnsafe(swiftUnsafePointer);
-    return std::make_shared<margelo::nitro::mmfile::HybridMmfileSpecSwift>(swiftPart);
-  }
-  void* _Nonnull get_std__shared_ptr_margelo__nitro__mmfile__HybridMmfileSpec_(std__shared_ptr_margelo__nitro__mmfile__HybridMmfileSpec_ cppType) {
-    std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::mmfile::HybridMmfileSpecSwift>(cppType);
-  #ifdef NITRO_DEBUG
-    if (swiftWrapper == nullptr) [[unlikely]] {
-      throw std::runtime_error("Class \"HybridMmfileSpec\" is not implemented in Swift!");
-    }
-  #endif
-    NitroMmfile::HybridMmfileSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
-    return swiftPart.toUnsafe();
-  }
-  
-  // pragma MARK: std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec>
-  std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> create_std__shared_ptr_margelo__nitro__mmfile__HybridEncryptedMmfileSpec_(void* _Nonnull swiftUnsafePointer) {
-    NitroMmfile::HybridEncryptedMmfileSpec_cxx swiftPart = NitroMmfile::HybridEncryptedMmfileSpec_cxx::fromUnsafe(swiftUnsafePointer);
-    return std::make_shared<margelo::nitro::mmfile::HybridEncryptedMmfileSpecSwift>(swiftPart);
-  }
-  void* _Nonnull get_std__shared_ptr_margelo__nitro__mmfile__HybridEncryptedMmfileSpec_(std__shared_ptr_margelo__nitro__mmfile__HybridEncryptedMmfileSpec_ cppType) {
-    std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::mmfile::HybridEncryptedMmfileSpecSwift>(cppType);
-  #ifdef NITRO_DEBUG
-    if (swiftWrapper == nullptr) [[unlikely]] {
-      throw std::runtime_error("Class \"HybridEncryptedMmfileSpec\" is not implemented in Swift!");
-    }
-  #endif
-    NitroMmfile::HybridEncryptedMmfileSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
-    return swiftPart.toUnsafe();
-  }
-  
   // pragma MARK: std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>
   std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec> create_std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_(void* _Nonnull swiftUnsafePointer) {
     NitroMmfile::HybridMmfilePlatformContextSpec_cxx swiftPart = NitroMmfile::HybridMmfilePlatformContextSpec_cxx::fromUnsafe(swiftUnsafePointer);
