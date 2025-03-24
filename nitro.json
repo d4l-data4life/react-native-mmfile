@@ -1,0 +1,33 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": [
+    "mmfile"
+  ],
+  "ios": {
+    "iosModuleName": "NitroMmfile"
+  },
+  "android": {
+    "androidNamespace": [
+      "mmfile"
+    ],
+    "androidCxxLibName": "NitroMmfile"
+  },
+  "autolinking": {
+    "MmfilePlatformContext": {
+      "swift": "HybridMmfilePlatformContext",
+      "kotlin": "HybridMmfilePlatformContext"
+    },
+    "MmfileCpp": {
+      "cpp": "HybridMmfileCpp"
+    },
+    "EncryptedMmfileCpp": {
+      "cpp": "HybridEncryptedMmfileCpp"
+    },
+    "MmfileFactoryCpp": {
+      "cpp": "HybridMmfileFactoryCpp"
+    }
+  },
+  "ignorePaths": [
+    "**/node_modules"
+  ]
+}

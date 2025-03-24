@@ -1,0 +1,28 @@
+#include "HybridMmfile.h"
+#include <jsi/jsi.h>
+
+using namespace facebook;
+
+double HybridMmfile::size() {
+    return (double)instance->size();
+}
+
+void HybridMmfile::resize(double newSize) {
+    instance->resize((size_t)newSize);
+}
+
+void HybridMmfile::clear() {
+    instance->clear();
+}
+
+void HybridMmfile::append(const std::shared_ptr<ArrayBuffer>& buffer) {
+    instance->append(buffer->data(), buffer->size());
+}
+
+void HybridMmfile::write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) {
+    instance->write((size_t)offset, buffer->data(), buffer->size());
+}
+
+double HybridMmfile::read(double offset, std::shared_ptr<ArrayBuffer> buffer) {
+    return (double)instance->read((size_t)offset, buffer->data(), buffer->size());
+}

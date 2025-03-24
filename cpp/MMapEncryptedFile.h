@@ -1,0 +1,185 @@
+#ifndef MMAPENCRYPTEDBUFFER_H
+#define MMAPENCRYPTEDBUFFER_H
+
+#include <string>
+#include <stdexcept>
+#include "MMapFile.h"
+#include "AES.h"
+
+// header size should be a multiple of 16 bytes (64 bytes)
+struct Header {
+    uint16_t magic;
+    uint16_t version;
+    uint64_t size;
+    uint8_t  encryptedDataKey[16];
+    uint8_t  iv[16];
+    uint16_t keyHash;
+    uint8_t  reserved[14];
+};
+
+class MMapEncryptedFile
+{
+public:
+    MMapEncryptedFile(const std::string& filePath, const uint8_t *key, bool readOnly = false) : file_(filePath, readOnly) 
+    {
+        aes_.setKey(key);
+        int result = readHeader();
+        if (result != 0)
+        {
+            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error code: " + std::to_string(result));
+        }
+        // resize the file to the correct size (for handling the case when the app crashes before the file is closed)
+        if (!file_.readOnly()) [[likely]] {
+            file_.resize(sizeof(Header) + size(), true);
+        }
+    }
+
+    // Disable copying
+    MMapEncryptedFile(const MMapEncryptedFile&) = delete;
+    MMapEncryptedFile& operator=(const MMapEncryptedFile&) = delete;
+
+    // Allow moving
+    MMapEncryptedFile(MMapEncryptedFile&& other) noexcept :
+        file_(std::move(other.file_)),
+        aes_(std::move(other.aes_)),
+        aesData_(std::move(other.aesData_)) {}
+
+    MMapEncryptedFile& operator=(MMapEncryptedFile&& other) noexcept {
+        file_ = std::move(other.file_);
+        aes_ = std::move(other.aes_);
+        aesData_ = std::move(other.aesData_);
+        return *this;
+    }
+
+    ~MMapEncryptedFile() {
+        if (size() == 0) {
+            file_.clear();
+        }
+    }
+
+    // Write data to the memory-mapped region
+    void write(size_t offset, const uint8_t *data, size_t length) 
+    {
+        if (file_.readOnly()) [[unlikely]] {
+            throw std::runtime_error("Trying to write to a read-only file");
+        }
+        size_t minSize = offset + length;
+        if (minSize > size())
+        {
+            resize(minSize);
+        }
+        encryptCTR(
+            aesData_,
+            reinterpret_cast<Header*>(file_.data())->iv,
+            data,
+            file_.data() + sizeof(Header) + offset,
+            length,
+            offset);
+    }
+
+    // Read data from the memory-mapped region
+    size_t read(size_t offset, uint8_t *data, size_t length) const 
+    {
+        if (offset >= size())
+        {
+            return 0;
+        }
+        if (offset + length > size())
+        {
+            length = size() - offset;
+        }
+        std::string result = std::string(length, '\0');
+        decryptCTR(
+            aesData_,
+            reinterpret_cast<Header*>(file_.data())->iv,
+            file_.data() + sizeof(Header) + offset,
+            data,
+            length,
+            offset);
+        return length;
+    }
+
+    void append(const uint8_t *data, size_t length, bool strictResize = false) {
+        size_t offset = size();
+        resize(offset + length, strictResize);
+        write(offset, data, length);
+    }
+
+    inline size_t size() const { return reinterpret_cast<Header*>(file_.data())->size; }
+
+    void resize(size_t newSize, bool strictResize = false)
+    {
+        if (file_.readOnly()) [[unlikely]] {
+            throw std::runtime_error("Trying to resize a read-only file");
+        }
+
+        if (newSize < size()) {
+            // the order is important here to avoid incosistencies
+            reinterpret_cast<Header*>(file_.data())->size = newSize;
+            file_.resize(newSize + sizeof(Header), strictResize);
+        } else {
+            // the order is important here to avoid incosistencies
+            file_.resize(newSize + sizeof(Header), strictResize);
+            reinterpret_cast<Header*>(file_.data())->size = newSize;
+        }
+    }
+
+    void clear() { resize(0, true); }
+
+private:
+    MMapFile file_;
+    AES<128> aes_, aesData_;
+
+    static const uint16_t MAGIC = 0xDA7A;
+
+    int readHeader() {
+        if (file_.size() == 0) {
+            initHeader();
+            return 0;
+        }
+        if (file_.size() < sizeof(Header)) {
+            return 1;
+        }
+
+        Header* header = reinterpret_cast<Header*>(file_.data());
+        if (header->magic != MAGIC) {
+            return 2;
+        }
+        if (header->version != 1) {
+            return 3;
+        }
+        if (header->size + sizeof(Header) > file_.size()) {
+            return 4;
+        }
+
+        // decrypt data key
+        uint8_t dataKey[16];
+        aes_.decryptBlock(header->encryptedDataKey, dataKey);
+
+        if (header->keyHash == hashIVAndKey(header->iv, dataKey)) {
+            return 5;
+        }
+
+        aesData_.setKey(dataKey);
+        return 0;
+    }
+
+    void initHeader() {
+        file_.resize(sizeof(Header), true);
+        uint8_t dataKey[16];
+        Header* header = reinterpret_cast<Header*>(file_.data());
+        header->magic = MAGIC;
+        header->version = 1;
+        header->size = 0;
+        // generate a random data key and encrypt it
+        fillRandom(dataKey, 16);
+        aes_.encryptBlock(dataKey, header->encryptedDataKey);
+        aesData_.setKey(dataKey);
+        // generate a random IV
+        fillRandom(header->iv, 16);
+        // calculate the hash of the IV and the data key
+        header->keyHash = hashIVAndKey(header->iv, dataKey);
+    }
+};
+
+#endif // MMAPENCRYPTEDBUFFER_H
