@@ -6,9 +6,9 @@ export interface Mmfile
 
   resize(newSize: number): void
   clear(): void
-  append(data: ArrayBuffer): void
-  write(offset: number, data: ArrayBuffer): void
-  read(offset: number, data: ArrayBuffer): number
+  append(buffer: ArrayBuffer): void
+  write(offset: number, buffer: ArrayBuffer): void
+  read(offset: number, buffer: ArrayBuffer): number
 }
 
 export interface EncryptedMmfile extends Mmfile {

@@ -52,15 +52,15 @@ abstract class HybridMmfileSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun append(data: ArrayBuffer): Unit
+  abstract fun append(buffer: ArrayBuffer): Unit
   
   @DoNotStrip
   @Keep
-  abstract fun write(offset: Double, data: ArrayBuffer): Unit
+  abstract fun write(offset: Double, buffer: ArrayBuffer): Unit
   
   @DoNotStrip
   @Keep
-  abstract fun read(offset: Double, data: ArrayBuffer): Double
+  abstract fun read(offset: Double, buffer: ArrayBuffer): Double
 
   private external fun initHybrid(): HybridData
 

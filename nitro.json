@@ -13,18 +13,12 @@
     "androidCxxLibName": "NitroMmfile"
   },
   "autolinking": {
+    "MmfileFactory": {
+      "cpp": "HybridMmfileFactory"
+    },
     "MmfilePlatformContext": {
       "swift": "HybridMmfilePlatformContext",
       "kotlin": "HybridMmfilePlatformContext"
-    },
-    "MmfileCpp": {
-      "cpp": "HybridMmfileCpp"
-    },
-    "EncryptedMmfileCpp": {
-      "cpp": "HybridEncryptedMmfileCpp"
-    },
-    "MmfileFactoryCpp": {
-      "cpp": "HybridMmfileFactoryCpp"
     }
   },
   "ignorePaths": [

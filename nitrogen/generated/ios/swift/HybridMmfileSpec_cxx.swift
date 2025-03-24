@@ -128,9 +128,9 @@ public class HybridMmfileSpec_cxx {
   }
   
   @inline(__always)
-  public final func append(data: ArrayBufferHolder) -> bridge.Result_void_ {
+  public final func append(buffer: ArrayBufferHolder) -> bridge.Result_void_ {
     do {
-      try self.__implementation.append(data: data)
+      try self.__implementation.append(buffer: buffer)
       return bridge.create_Result_void_()
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
@@ -139,9 +139,9 @@ public class HybridMmfileSpec_cxx {
   }
   
   @inline(__always)
-  public final func write(offset: Double, data: ArrayBufferHolder) -> bridge.Result_void_ {
+  public final func write(offset: Double, buffer: ArrayBufferHolder) -> bridge.Result_void_ {
     do {
-      try self.__implementation.write(offset: offset, data: data)
+      try self.__implementation.write(offset: offset, buffer: buffer)
       return bridge.create_Result_void_()
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
@@ -150,9 +150,9 @@ public class HybridMmfileSpec_cxx {
   }
   
   @inline(__always)
-  public final func read(offset: Double, data: ArrayBufferHolder) -> bridge.Result_double_ {
+  public final func read(offset: Double, buffer: ArrayBufferHolder) -> bridge.Result_double_ {
     do {
-      let __result = try self.__implementation.read(offset: offset, data: data)
+      let __result = try self.__implementation.read(offset: offset, buffer: buffer)
       let __resultCpp = __result
       return bridge.create_Result_double_(__resultCpp)
     } catch (let __error) {

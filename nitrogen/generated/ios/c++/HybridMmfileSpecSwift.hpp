@@ -73,20 +73,20 @@ namespace margelo::nitro::mmfile {
         std::rethrow_exception(__result.error());
       }
     }
-    inline void append(const std::shared_ptr<ArrayBuffer>& data) override {
-      auto __result = _swiftPart.append(ArrayBufferHolder(data));
+    inline void append(const std::shared_ptr<ArrayBuffer>& buffer) override {
+      auto __result = _swiftPart.append(ArrayBufferHolder(buffer));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
     }
-    inline void write(double offset, const std::shared_ptr<ArrayBuffer>& data) override {
-      auto __result = _swiftPart.write(std::forward<decltype(offset)>(offset), ArrayBufferHolder(data));
+    inline void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override {
+      auto __result = _swiftPart.write(std::forward<decltype(offset)>(offset), ArrayBufferHolder(buffer));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
     }
-    inline double read(double offset, const std::shared_ptr<ArrayBuffer>& data) override {
-      auto __result = _swiftPart.read(std::forward<decltype(offset)>(offset), ArrayBufferHolder(data));
+    inline double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override {
+      auto __result = _swiftPart.read(std::forward<decltype(offset)>(offset), ArrayBufferHolder(buffer));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

@@ -53,9 +53,9 @@ namespace margelo::nitro::mmfile {
     // Methods
     void resize(double newSize) override;
     void clear() override;
-    void append(const std::shared_ptr<ArrayBuffer>& data) override;
-    void write(double offset, const std::shared_ptr<ArrayBuffer>& data) override;
-    double read(double offset, const std::shared_ptr<ArrayBuffer>& data) override;
+    void append(const std::shared_ptr<ArrayBuffer>& buffer) override;
+    void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
+    double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
 
   private:
     friend HybridBase;

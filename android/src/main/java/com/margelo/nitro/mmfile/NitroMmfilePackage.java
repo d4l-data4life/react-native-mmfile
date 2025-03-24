@@ -1,13 +1,19 @@
 package com.margelo.nitro.mmfile;
 
-import android.util.Log;
-
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.function.Supplier;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.module.model.ReactModuleInfoProvider;
+import com.facebook.react.TurboReactPackage;
+import com.facebook.react.uimanager.ViewManager;
 
-public class NitroMmfilePackage extends HybridMmfileSpec {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class NitroMmfilePackage extends TurboReactPackage {
   @Nullable
   @Override
   public NativeModule getModule(String name, ReactApplicationContext reactContext) {

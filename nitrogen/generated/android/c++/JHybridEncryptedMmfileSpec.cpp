@@ -44,17 +44,17 @@ namespace margelo::nitro::mmfile {
     static const auto method = javaClassStatic()->getMethod<void()>("clear");
     method(_javaPart);
   }
-  void JHybridEncryptedMmfileSpec::append(const std::shared_ptr<ArrayBuffer>& data) {
-    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JArrayBuffer::javaobject> /* data */)>("append");
-    method(_javaPart, JArrayBuffer::wrap(data));
+  void JHybridEncryptedMmfileSpec::append(const std::shared_ptr<ArrayBuffer>& buffer) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JArrayBuffer::javaobject> /* buffer */)>("append");
+    method(_javaPart, JArrayBuffer::wrap(buffer));
   }
-  void JHybridEncryptedMmfileSpec::write(double offset, const std::shared_ptr<ArrayBuffer>& data) {
-    static const auto method = javaClassStatic()->getMethod<void(double /* offset */, jni::alias_ref<JArrayBuffer::javaobject> /* data */)>("write");
-    method(_javaPart, offset, JArrayBuffer::wrap(data));
+  void JHybridEncryptedMmfileSpec::write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) {
+    static const auto method = javaClassStatic()->getMethod<void(double /* offset */, jni::alias_ref<JArrayBuffer::javaobject> /* buffer */)>("write");
+    method(_javaPart, offset, JArrayBuffer::wrap(buffer));
   }
-  double JHybridEncryptedMmfileSpec::read(double offset, const std::shared_ptr<ArrayBuffer>& data) {
-    static const auto method = javaClassStatic()->getMethod<double(double /* offset */, jni::alias_ref<JArrayBuffer::javaobject> /* data */)>("read");
-    auto __result = method(_javaPart, offset, JArrayBuffer::wrap(data));
+  double JHybridEncryptedMmfileSpec::read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) {
+    static const auto method = javaClassStatic()->getMethod<double(double /* offset */, jni::alias_ref<JArrayBuffer::javaobject> /* buffer */)>("read");
+    auto __result = method(_javaPart, offset, JArrayBuffer::wrap(buffer));
     return __result;
   }
 

@@ -18,11 +18,9 @@
 #include "JHybridMmfileSpec.hpp"
 #include "JHybridEncryptedMmfileSpec.hpp"
 #include "JHybridMmfilePlatformContextSpec.hpp"
+#include "HybridMmfileFactory.hpp"
 #include <NitroModules/JNISharedPtr.hpp>
 #include <NitroModules/DefaultConstructableObject.hpp>
-#include "HybridMmfileCpp.hpp"
-#include "HybridEncryptedMmfileCpp.hpp"
-#include "HybridMmfileFactoryCpp.hpp"
 
 namespace margelo::nitro::mmfile {
 
@@ -39,39 +37,21 @@ int initialize(JavaVM* vm) {
 
     // Register Nitro Hybrid Objects
     HybridObjectRegistry::registerHybridObjectConstructor(
+      "MmfileFactory",
+      []() -> std::shared_ptr<HybridObject> {
+        static_assert(std::is_default_constructible_v<HybridMmfileFactory>,
+                      "The HybridObject \"HybridMmfileFactory\" is not default-constructible! "
+                      "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
+        return std::make_shared<HybridMmfileFactory>();
+      }
+    );
+    HybridObjectRegistry::registerHybridObjectConstructor(
       "MmfilePlatformContext",
       []() -> std::shared_ptr<HybridObject> {
         static DefaultConstructableObject<JHybridMmfilePlatformContextSpec::javaobject> object("com/margelo/nitro/mmfile/HybridMmfilePlatformContext");
         auto instance = object.create();
         auto globalRef = jni::make_global(instance);
         return JNISharedPtr::make_shared_from_jni<JHybridMmfilePlatformContextSpec>(globalRef);
-      }
-    );
-    HybridObjectRegistry::registerHybridObjectConstructor(
-      "MmfileCpp",
-      []() -> std::shared_ptr<HybridObject> {
-        static_assert(std::is_default_constructible_v<HybridMmfileCpp>,
-                      "The HybridObject \"HybridMmfileCpp\" is not default-constructible! "
-                      "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
-        return std::make_shared<HybridMmfileCpp>();
-      }
-    );
-    HybridObjectRegistry::registerHybridObjectConstructor(
-      "EncryptedMmfileCpp",
-      []() -> std::shared_ptr<HybridObject> {
-        static_assert(std::is_default_constructible_v<HybridEncryptedMmfileCpp>,
-                      "The HybridObject \"HybridEncryptedMmfileCpp\" is not default-constructible! "
-                      "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
-        return std::make_shared<HybridEncryptedMmfileCpp>();
-      }
-    );
-    HybridObjectRegistry::registerHybridObjectConstructor(
-      "MmfileFactoryCpp",
-      []() -> std::shared_ptr<HybridObject> {
-        static_assert(std::is_default_constructible_v<HybridMmfileFactoryCpp>,
-                      "The HybridObject \"HybridMmfileFactoryCpp\" is not default-constructible! "
-                      "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
-        return std::make_shared<HybridMmfileFactoryCpp>();
       }
     );
   });

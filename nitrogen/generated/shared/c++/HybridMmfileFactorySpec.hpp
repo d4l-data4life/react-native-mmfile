@@ -17,11 +17,14 @@
 namespace margelo::nitro::mmfile { class HybridMmfileSpec; }
 // Forward declaration of `HybridEncryptedMmfileSpec` to properly resolve imports.
 namespace margelo::nitro::mmfile { class HybridEncryptedMmfileSpec; }
+// Forward declaration of `ArrayBuffer` to properly resolve imports.
+namespace NitroModules { class ArrayBuffer; }
 
 #include <memory>
 #include "HybridMmfileSpec.hpp"
 #include <string>
 #include "HybridEncryptedMmfileSpec.hpp"
+#include <NitroModules/ArrayBuffer.hpp>
 
 namespace margelo::nitro::mmfile {
 
@@ -55,7 +58,7 @@ namespace margelo::nitro::mmfile {
     public:
       // Methods
       virtual std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec> openMmfile(const std::string& path) = 0;
-      virtual std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::string& key) = 0;
+      virtual std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) = 0;
       virtual std::string reverseString(const std::string& input) = 0;
 
     protected:

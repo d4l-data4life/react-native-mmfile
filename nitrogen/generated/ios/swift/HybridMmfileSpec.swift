@@ -16,9 +16,9 @@ public protocol HybridMmfileSpec_protocol: HybridObject {
   // Methods
   func resize(newSize: Double) throws -> Void
   func clear() throws -> Void
-  func append(data: ArrayBufferHolder) throws -> Void
-  func write(offset: Double, data: ArrayBufferHolder) throws -> Void
-  func read(offset: Double, data: ArrayBufferHolder) throws -> Double
+  func append(buffer: ArrayBufferHolder) throws -> Void
+  func write(offset: Double, buffer: ArrayBufferHolder) throws -> Void
+  func read(offset: Double, buffer: ArrayBufferHolder) throws -> Double
 }
 
 /// See ``HybridMmfileSpec``

@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 
 @Keep
 @DoNotStrip
-class HybridMmfilePlatformContext : HybridMmfileSpec() {
+class HybridMmfilePlatformContext : HybridMmfilePlatformContextSpec() {
     private val TAG = "HybridMmfilePlatformContext"
 
     override fun getBaseDirectory(): String {

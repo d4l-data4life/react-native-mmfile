@@ -51,9 +51,9 @@ namespace margelo::nitro::mmfile {
       // Methods
       virtual void resize(double newSize) = 0;
       virtual void clear() = 0;
-      virtual void append(const std::shared_ptr<ArrayBuffer>& data) = 0;
-      virtual void write(double offset, const std::shared_ptr<ArrayBuffer>& data) = 0;
-      virtual double read(double offset, const std::shared_ptr<ArrayBuffer>& data) = 0;
+      virtual void append(const std::shared_ptr<ArrayBuffer>& buffer) = 0;
+      virtual void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) = 0;
+      virtual double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) = 0;
 
     protected:
       // Hybrid Setup

@@ -5,6 +5,8 @@
 #include "HybridEncryptedMmfileSpec.hpp"
 #include <jsi/jsi.h>
 
+#include <string>
+
 namespace margelo::nitro::mmfile
 {
 
@@ -14,9 +16,9 @@ class HybridMmfileFactory : public HybridMmfileFactorySpec
 {
 public:
     HybridMmfileFactory() : HybridObject(TAG) {}
-    std::string reverseString(const std::string& input);
-    std::shared_ptr<HybridMmfileSpec> openMmfile(path: string);
-    std::shared_ptr<HybridEncryptedMmfileSpec> openEncryptedMmfile(path: string, key: string);
+    std::string reverseString(const std::string& input) override;
+    std::shared_ptr<HybridMmfileSpec> openMmfile(const std::string& path) override;
+    std::shared_ptr<HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) override;
 };
 
 } // namespace margelo::nitro::mmfile
