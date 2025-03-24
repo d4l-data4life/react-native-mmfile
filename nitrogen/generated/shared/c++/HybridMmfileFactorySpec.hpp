@@ -59,7 +59,6 @@ namespace margelo::nitro::mmfile {
       // Methods
       virtual std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec> openMmfile(const std::string& path) = 0;
       virtual std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) = 0;
-      virtual std::string reverseString(const std::string& input) = 0;
 
     protected:
       // Hybrid Setup

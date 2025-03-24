@@ -215,7 +215,9 @@ private:
         if (filePath.empty()) [[unlikely]] {
             throw std::runtime_error("Failed to create/open file `filePath` is empty");
         }
-        createParentDir(filePath);
+        if (!createParentDir(filePath)) [[unlikely]] {
+            throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
+        }
         fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : O_RDWR | O_CREAT, 0666);
         if (fd_ < 0)
         {

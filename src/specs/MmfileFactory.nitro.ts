@@ -4,5 +4,4 @@ import type { Mmfile, EncryptedMmfile } from './Mmfile.nitro'
 export interface MmfileFactory extends HybridObject<{ ios: 'c++', android: 'c++' }> {
   openMmfile(path: string): Mmfile;
   openEncryptedMmfile(path: string, key: ArrayBuffer): EncryptedMmfile;
-  reverseString(input: string): string
 }

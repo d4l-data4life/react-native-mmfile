@@ -1,13 +1,8 @@
 package com.margelo.nitro.mmfile
 
-import android.util.Log
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
-import com.margelo.nitro.core.AnyMap
-import com.margelo.nitro.core.AnyValue
-import com.margelo.nitro.core.ArrayBuffer
-import com.margelo.nitro.core.Promise
-import kotlinx.coroutines.delay
+import com.margelo.nitro.NitroModules
 
 @Keep
 @DoNotStrip
@@ -15,8 +10,10 @@ class HybridMmfilePlatformContext : HybridMmfilePlatformContextSpec() {
     private val TAG = "HybridMmfilePlatformContext"
 
     override fun getBaseDirectory(): String {
-        // return "${context.filesDir.absolutePath}/rtnmmarray"
-        return "rtnmmarray"
+        NitroModules.applicationContext?.let {
+            return "${it.filesDir.absolutePath}/rtnmmfile"
+        }
+        return ""
     }
 
     override fun getAppGroupDirectory(): String? {

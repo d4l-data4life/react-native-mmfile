@@ -16,7 +16,6 @@ namespace margelo::nitro::mmfile {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridMethod("openMmfile", &HybridMmfileFactorySpec::openMmfile);
       prototype.registerHybridMethod("openEncryptedMmfile", &HybridMmfileFactorySpec::openEncryptedMmfile);
-      prototype.registerHybridMethod("reverseString", &HybridMmfileFactorySpec::reverseString);
     });
   }
 

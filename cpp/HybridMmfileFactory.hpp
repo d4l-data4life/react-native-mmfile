@@ -16,7 +16,6 @@ class HybridMmfileFactory : public HybridMmfileFactorySpec
 {
 public:
     HybridMmfileFactory() : HybridObject(TAG) {}
-    std::string reverseString(const std::string& input) override;
     std::shared_ptr<HybridMmfileSpec> openMmfile(const std::string& path) override;
     std::shared_ptr<HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) override;
 };

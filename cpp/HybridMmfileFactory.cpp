@@ -14,9 +14,4 @@ std::shared_ptr<HybridEncryptedMmfileSpec> HybridMmfileFactory::openEncryptedMmf
     return std::make_shared<HybridEncryptedMmfile>(path, key);
 }
 
-std::string HybridMmfileFactory::reverseString(const std::string &input)
-{
-    return std::string(input.rbegin(), input.rend());
-}
-
 } // namespace margelo::nitro::mmfile
