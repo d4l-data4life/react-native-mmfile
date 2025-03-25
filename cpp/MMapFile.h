@@ -37,7 +37,7 @@ static inline bool createParentDir(const std::string &path) {
     while ((pos = path.find('/', pos + 1)) != std::string::npos) {
         std::string subPath = path.substr(0, pos);
         if (stat(subPath.c_str(), &sb) != 0) {
-            if (errno != ENOENT || mkdir(subPath.c_str(), 0777) != 0) {
+            if (errno != ENOENT || mkdir(subPath.c_str(), 0700) != 0) {
                 return false;
             }
         } else if (!S_ISDIR(sb.st_mode)) {
@@ -218,7 +218,7 @@ private:
         if (!createParentDir(filePath)) [[unlikely]] {
             throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
         }
-        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : (O_RDWR | O_CREAT), 0666);
+        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : (O_RDWR | O_CREAT), 0600);
         if (fd_ < 0)
         {
             throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + strerror(errno));

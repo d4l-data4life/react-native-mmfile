@@ -44,8 +44,8 @@ class HybridEncryptedMmfile : public HybridEncryptedMmfileSpec
 public:
     HybridEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) : HybridObject(TAG)
     {
-        if (key.size != 16) [[unlikely]] {
-            throw std::runtime_error("encryptionKey must be of length 16 but is " + std::to_string(key.size));
+        if (key->size() != 16) [[unlikely]] {
+            throw std::runtime_error("encryptionKey must be of length 16 but is " + std::to_string(key->size()));
         }
         instance = new MMapEncryptedFile(path, key->data());
         if (instance == nullptr) [[unlikely]] {
