@@ -16,6 +16,7 @@
 // Forward declaration of `ArrayBuffer` to properly resolve imports.
 namespace NitroModules { class ArrayBuffer; }
 
+#include <string>
 #include <NitroModules/ArrayBuffer.hpp>
 
 namespace margelo::nitro::mmfile {
@@ -46,6 +47,9 @@ namespace margelo::nitro::mmfile {
     public:
       // Properties
       virtual double getSize() = 0;
+      virtual double getCapacity() = 0;
+      virtual bool getReadOnly() = 0;
+      virtual std::string getFilePath() = 0;
 
     public:
       // Methods

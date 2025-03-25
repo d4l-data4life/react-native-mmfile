@@ -106,6 +106,9 @@ public:
     }
 
     inline size_t size() const { return reinterpret_cast<Header*>(file_.data())->size; }
+    inline size_t capacity() const { return file_.size() - sizeof(Header); }
+    inline bool readOnly() const { return file_.readOnly(); }
+    inline const std::string& filePath() const { return file_.filePath(); }
 
     void resize(size_t newSize, bool strictResize = false)
     {

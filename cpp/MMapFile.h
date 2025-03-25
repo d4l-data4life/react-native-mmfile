@@ -37,7 +37,7 @@ static inline bool createParentDir(const std::string &path) {
     while ((pos = path.find('/', pos + 1)) != std::string::npos) {
         std::string subPath = path.substr(0, pos);
         if (stat(subPath.c_str(), &sb) != 0) {
-            if (errno != ENOENT || mkdir(subPath.c_str(), 0700) != 0) {
+            if (errno != ENOENT || mkdir(subPath.c_str(), 0777) != 0) {
                 return false;
             }
         } else if (!S_ISDIR(sb.st_mode)) {
@@ -218,10 +218,10 @@ private:
         if (!createParentDir(filePath)) [[unlikely]] {
             throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
         }
-        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : O_RDWR | O_CREAT, 0666);
+        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : (O_RDWR | O_CREAT), 0666);
         if (fd_ < 0)
         {
-            throw std::runtime_error(std::string("Failed to open file: ") + filePath);
+            throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + strerror(errno));
         }
         filePath_ = filePath;
 
@@ -258,7 +258,7 @@ private:
             fd_ = -1;
 
             // delete file if empty
-            if (size_ == 0 && !filePath_.empty()) {
+            if (!readOnly_ && size_ == 0 && !filePath_.empty()) {
                 remove(filePath_.c_str());
             }
         }

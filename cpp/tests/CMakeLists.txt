@@ -22,9 +22,9 @@ add_executable(MMapFileTest MMapFileTest.cpp)
 add_executable(MMapEncryptedFileTest MMapEncryptedFileTest.cpp)
 
 # Link the test executables with the necessary libraries
-target_link_libraries(AESTest PRIVATE GTest::GTest GTest::Main pthread)
-target_link_libraries(MMapFileTest PRIVATE GTest::GTest GTest::Main pthread)
-target_link_libraries(MMapEncryptedFileTest PRIVATE GTest::GTest GTest::Main pthread)
+target_link_libraries(AESTest PRIVATE ${GTEST_LIBRARY_DEBUG} ${GTEST_MAIN_LIBRARY_DEBUG} pthread)
+target_link_libraries(MMapFileTest PRIVATE ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
+target_link_libraries(MMapEncryptedFileTest PRIVATE ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES} pthread)
 
 # Include the source files for testing
 target_include_directories(AESTest PRIVATE ..)

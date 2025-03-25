@@ -25,6 +25,10 @@ public:
     }
 
     double getSize() override;
+    double getCapacity() override;
+    bool getReadOnly() override;
+    std::string getFilePath() override;
+
     void resize(double newSize) override;
     void clear() override;
     void append(const std::shared_ptr<ArrayBuffer>& buffer) override;
@@ -40,13 +44,20 @@ class HybridEncryptedMmfile : public HybridEncryptedMmfileSpec
 public:
     HybridEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) : HybridObject(TAG)
     {
-        instance = new MMapEncryptedFile(path, key->data(), key->size());
+        if (key.size != 16) [[unlikely]] {
+            throw std::runtime_error("encryptionKey must be of length 16 but is " + std::to_string(key.size));
+        }
+        instance = new MMapEncryptedFile(path, key->data());
         if (instance == nullptr) [[unlikely]] {
             throw std::runtime_error("Failed to create MMapEncryptedFile instance");
         }
     }
 
     double getSize() override;
+    double getCapacity() override;
+    bool getReadOnly() override;
+    std::string getFilePath() override;
+
     void resize(double newSize) override;
     void clear() override;
     void append(const std::shared_ptr<ArrayBuffer>& buffer) override;

@@ -15,6 +15,9 @@ namespace margelo::nitro::mmfile {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("size", &HybridMmfileSpec::getSize);
+      prototype.registerHybridGetter("capacity", &HybridMmfileSpec::getCapacity);
+      prototype.registerHybridGetter("readOnly", &HybridMmfileSpec::getReadOnly);
+      prototype.registerHybridGetter("filePath", &HybridMmfileSpec::getFilePath);
       prototype.registerHybridMethod("resize", &HybridMmfileSpec::resize);
       prototype.registerHybridMethod("clear", &HybridMmfileSpec::clear);
       prototype.registerHybridMethod("append", &HybridMmfileSpec::append);
