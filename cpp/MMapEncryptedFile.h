@@ -17,6 +17,15 @@ struct Header {
     uint8_t  reserved[14];
 };
 
+static const char* MMapEncryptedFileErrors[] = {
+    "",
+    "Encrypted file doesn't have a full header",
+    "Header's magic number doesn't match",
+    "Unsupported version",
+    "Encrypted file is shorter than the header declares",
+    "Wrong encryption key"
+};
+
 class MMapEncryptedFile
 {
 public:
@@ -26,7 +35,7 @@ public:
         int result = readHeader();
         if (result != 0)
         {
-            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error code: " + std::to_string(result));
+            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error: " + MMapEncryptedFileErrors[result]);
         }
         // resize the file to the correct size (for handling the case when the app crashes before the file is closed)
         if (!file_.readOnly()) [[likely]] {
