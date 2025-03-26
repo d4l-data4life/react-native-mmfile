@@ -12,13 +12,23 @@ TEST(MMapFileTest, CreatesAndMapsFile) {
   ASSERT_EQ(file.size(), size);
 
   // Write and read data
-  std::string str = "Hello, TurboModule!";
+  std::string str = "Hello, NitroModules!";
   file.write(0, reinterpret_cast<const uint8_t*>(str.data()), str.size());
 
   std::string str2(str.size(), '\0');
   ASSERT_EQ(file.read(0, reinterpret_cast<uint8_t*>(const_cast<char*>(str2.data())), str.size()), str.size());
   ASSERT_EQ(str2, str);
   file.clear();
+}
+
+TEST(MMapFileTest, Resize) {
+  const std::string filePath = "/tmp/testfile2";
+
+  MMapFile file(filePath);
+  file.resize(200, true);
+  file.resize(800, true);
+  file.resize(100, true);
+  file.resize(0, true);
 }
 
 TEST(MMapFileTest, ThrowsForInvalidFile) {

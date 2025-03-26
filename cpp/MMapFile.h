@@ -126,17 +126,13 @@ public:
             return;
         }
 
-        if (data_) [[likely]] {
-            munmap(data_, capacity_);
-        }
+        // if (data_) [[likely]] {
+        //     munmap(data_, capacity_);
+        // }
+        
+        size_t newCapacity = strictResize ? newSize : (newSize | 0xfff); // round up to units of 4KB to avoid frequent resizing
 
-        if (strictResize) {
-            capacity_ = newSize;
-        } else {
-            capacity_ = newSize | 0xfff;  // round up to units of 4KB to avoid frequent resizing
-        }
-
-        if (!fileResize(fd_, capacity_)) [[unlikely]]
+        if (!fileResize(fd_, newCapacity)) [[unlikely]]
         {
             ::close(fd_);
             throw std::runtime_error("Failed to resize file");
@@ -148,11 +144,16 @@ public:
             return;
         }
 
-        data_ = static_cast<uint8_t *>(mmap(nullptr, capacity_, readOnly_ ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
-        if (data_ == MAP_FAILED) [[unlikely]]{
+        uint8_t* newData = static_cast<uint8_t *>(mmap(data_, newCapacity, readOnly_ ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
+        if (newData != data_) [[unlikely]] {
+            munmap(data_, capacity_);
+        }
+        if (newData == MAP_FAILED) [[unlikely]]{
             ::close(fd_);
             throw std::runtime_error("Failed to map file");
         }
+        data_ = newData;
+        capacity_ = newCapacity;
     }
 
     // Write data to the memory-mapped region
@@ -218,7 +219,7 @@ private:
         if (!createParentDir(filePath)) [[unlikely]] {
             throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
         }
-        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : (O_RDWR | O_CREAT), 0600);
+        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : O_RDWR | O_CREAT, 0600);
         if (fd_ < 0)
         {
             throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + strerror(errno));

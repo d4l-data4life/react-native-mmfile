@@ -61,7 +61,7 @@ public:
     }
 
     ~MMapEncryptedFile() {
-        if (size() == 0) {
+        if (!file_.readOnly() && size() == 0) {
             file_.clear();
         }
     }
@@ -139,6 +139,7 @@ public:
     void clear() { resize(0, true); }
 
 private:
+public:
     MMapFile file_;
     AES<128> aes_, aesData_;
 
@@ -168,7 +169,7 @@ private:
         uint8_t dataKey[16];
         aes_.decryptBlock(header->encryptedDataKey, dataKey);
 
-        if (header->keyHash == hashIVAndKey(header->iv, dataKey)) {
+        if (header->keyHash != hashIVAndKey(header->iv, dataKey)) {
             return 5;
         }
 
