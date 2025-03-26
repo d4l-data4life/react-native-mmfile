@@ -5,35 +5,32 @@ cmake_minimum_required(VERSION 3.10)
 project(TurboModuleTests)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 11)        # Use C++11
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_ANDROID_ARCH_ABI arm64-v8a)
 
 # Enable testing
 enable_testing()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 # Add gtest
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-# Add test executables
-add_executable(AESTest AESTest.cpp ../AES.h)
-add_executable(MMapFileTest MMapFileTest.cpp)
-add_executable(MMapEncryptedFileTest MMapEncryptedFileTest.cpp)
+# Collect all test source files
+set(TEST_SOURCES
+    AESTest.cpp
+    MMapFileTest.cpp
+    MMapFileBench.cpp
+    MMapEncryptedFileTest.cpp
+)
 
-# Link the test executables with the necessary libraries
-target_link_libraries(AESTest PRIVATE GTest::GTest GTest::Main pthread)
-target_link_libraries(MMapFileTest PRIVATE GTest::GTest GTest::Main pthread)
-target_link_libraries(MMapEncryptedFileTest PRIVATE GTest::GTest GTest::Main pthread)
-
-# Include the source files for testing
-target_include_directories(AESTest PRIVATE ..)
-target_include_directories(MMapFileTest PRIVATE ..)
-target_include_directories(MMapEncryptedFileTest PRIVATE ..)
-
-# Add tests
-add_test(NAME AESTest COMMAND AESTest)
-add_test(NAME MMapFileTest COMMAND MMapFileTest)
-add_test(NAME MMapEncryptedFileTest COMMAND MMapEncryptedFileTest)
+# Create test executables dynamically
+foreach(TEST_FILE ${TEST_SOURCES})
+    get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_FILE})
+    target_link_libraries(${TEST_NAME} PRIVATE GTest::GTest GTest::Main pthread)
+    target_include_directories(${TEST_NAME} PRIVATE ..)
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+endforeach()

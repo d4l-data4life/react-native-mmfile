@@ -29,6 +29,8 @@ static const char* MMapEncryptedFileErrors[] = {
 class MMapEncryptedFile
 {
 public:
+    MMapEncryptedFile() {}
+    
     MMapEncryptedFile(const std::string& filePath, const uint8_t *key, bool readOnly = false)
     {
         open(filePath, key, readOnly);

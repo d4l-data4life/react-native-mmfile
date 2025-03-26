@@ -195,7 +195,7 @@ public:
             return;
         }
 
-        size_t newCapacity = strictResize ? newSize : (newSize | 0xfff); // round up to units of 4KB to avoid frequent resizing
+        size_t newCapacity = strictResize ? newSize : (newSize | 0xffff); // round up to units of 64KB to avoid frequent resizing
 
         if (!fileResize(fd_, newCapacity)) [[unlikely]]
         {
