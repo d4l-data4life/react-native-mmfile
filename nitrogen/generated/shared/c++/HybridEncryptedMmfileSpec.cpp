@@ -12,10 +12,10 @@ namespace margelo::nitro::mmfile {
   void HybridEncryptedMmfileSpec::loadHybridMethods() {
     // load base methods/properties
     HybridObject::loadHybridMethods();
-    HybridMmfileSpec::loadHybridMethods();
+    HybridMmfileBaseSpec::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      
+      prototype.registerHybridMethod("open", &HybridEncryptedMmfileSpec::open);
     });
   }
 

@@ -22,6 +22,22 @@ std::string HybridMmfile::getFilePath() {
     return instance->filePath();
 }
 
+bool HybridMmfile::getIsOpen() {
+    return instance->isOpen();
+}
+
+void HybridMmfile::open(const std::string& path, std::optional<bool> readOnly) {
+    if (readOnly.has_value()) {
+        instance->open(path, readOnly.value());
+    } else {
+        instance->open(path);
+    }
+}
+
+void HybridMmfile::close() {
+    instance->close();
+}
+
 void HybridMmfile::resize(double newSize) {
     instance->resize((size_t)newSize);
 }
@@ -43,6 +59,8 @@ double HybridMmfile::read(double offset, const std::shared_ptr<ArrayBuffer>& buf
 }
 
 
+
+
 double HybridEncryptedMmfile::getSize() {
     return (double)instance->size();
 }
@@ -57,6 +75,22 @@ bool HybridEncryptedMmfile::getReadOnly() {
 
 std::string HybridEncryptedMmfile::getFilePath() {
     return instance->filePath();
+}
+
+bool HybridEncryptedMmfile::getIsOpen() {
+    return instance->isOpen();
+}
+
+void HybridEncryptedMmfile::open(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) {
+    if (readOnly.has_value()) {
+        instance->open(path, key->data(), readOnly.value());
+    } else {
+        instance->open(path, key->data());
+    }
+}
+
+void HybridEncryptedMmfile::close() {
+    instance->close();
 }
 
 void HybridEncryptedMmfile::resize(double newSize) {

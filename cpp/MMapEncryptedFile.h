@@ -29,18 +29,9 @@ static const char* MMapEncryptedFileErrors[] = {
 class MMapEncryptedFile
 {
 public:
-    MMapEncryptedFile(const std::string& filePath, const uint8_t *key, bool readOnly = false) : file_(filePath, readOnly) 
+    MMapEncryptedFile(const std::string& filePath, const uint8_t *key, bool readOnly = false)
     {
-        aes_.setKey(key);
-        int result = readHeader();
-        if (result != 0)
-        {
-            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error: " + MMapEncryptedFileErrors[result]);
-        }
-        // resize the file to the correct size (for handling the case when the app crashes before the file is closed)
-        if (!file_.readOnly()) [[likely]] {
-            file_.resize(sizeof(Header) + size(), true);
-        }
+        open(filePath, key, readOnly);
     }
 
     // Disable copying
@@ -61,14 +52,34 @@ public:
     }
 
     ~MMapEncryptedFile() {
-        if (!file_.readOnly() && size() == 0) {
+        close();
+    }
+
+    void open(const std::string& filePath, const uint8_t *key, bool readOnly = false) {
+        file_.open(filePath, readOnly);
+        aes_.setKey(key);
+        int result = readHeader();
+        if (result != 0)
+        {
+            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error: " + MMapEncryptedFileErrors[result]);
+        }
+        // resize the file to the correct size (for handling the case when the app crashes before the file is closed)
+        if (!file_.readOnly()) [[likely]] {
+            file_.resize(sizeof(Header) + size(), true);
+        }
+    }
+
+    void close() {
+        if (isOpen() && !readOnly() && size() == 0) {
             file_.clear();
         }
+        file_.close();
     }
 
     // Write data to the memory-mapped region
     void write(size_t offset, const uint8_t *data, size_t length) 
     {
+        file_.assertFileIsOpen();
         if (file_.readOnly()) [[unlikely]] {
             throw std::runtime_error("Trying to write to a read-only file");
         }
@@ -89,6 +100,7 @@ public:
     // Read data from the memory-mapped region
     size_t read(size_t offset, uint8_t *data, size_t length) const 
     {
+        file_.assertFileIsOpen();
         if (offset >= size())
         {
             return 0;
@@ -114,13 +126,19 @@ public:
         write(offset, data, length);
     }
 
-    inline size_t size() const { return reinterpret_cast<Header*>(file_.data())->size; }
+    inline size_t size() const { 
+        file_.assertFileIsOpen();
+        return reinterpret_cast<Header*>(file_.data())->size; 
+    }
+    
     inline size_t capacity() const { return file_.size() - sizeof(Header); }
     inline bool readOnly() const { return file_.readOnly(); }
     inline const std::string& filePath() const { return file_.filePath(); }
+    inline bool isOpen() const { return file_.isOpen(); }
 
     void resize(size_t newSize, bool strictResize = false)
     {
+        file_.assertFileIsOpen();
         if (file_.readOnly()) [[unlikely]] {
             throw std::runtime_error("Trying to resize a read-only file");
         }

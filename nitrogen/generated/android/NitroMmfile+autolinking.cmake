@@ -27,6 +27,7 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/NitroMmfileOnLoad.cpp
   # Shared Nitrogen C++ sources
+  ../nitrogen/generated/shared/c++/HybridMmfileBaseSpec.cpp
   ../nitrogen/generated/shared/c++/HybridMmfileSpec.cpp
   ../nitrogen/generated/shared/c++/HybridEncryptedMmfileSpec.cpp
   ../nitrogen/generated/shared/c++/HybridMmfileFactorySpec.cpp

@@ -13,11 +13,13 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `ArrayBuffer` to properly resolve imports.
-namespace NitroModules { class ArrayBuffer; }
+// Forward declaration of `HybridMmfileBaseSpec` to properly resolve imports.
+namespace margelo::nitro::mmfile { class HybridMmfileBaseSpec; }
 
 #include <string>
-#include <NitroModules/ArrayBuffer.hpp>
+#include <optional>
+#include <memory>
+#include "HybridMmfileBaseSpec.hpp"
 
 namespace margelo::nitro::mmfile {
 
@@ -36,7 +38,7 @@ namespace margelo::nitro::mmfile {
    * };
    * ```
    */
-  class HybridMmfileSpec: public virtual HybridObject {
+  class HybridMmfileSpec: public virtual HybridObject, public virtual HybridMmfileBaseSpec {
     public:
       // Constructor
       explicit HybridMmfileSpec(): HybridObject(TAG) { }
@@ -46,18 +48,11 @@ namespace margelo::nitro::mmfile {
 
     public:
       // Properties
-      virtual double getSize() = 0;
-      virtual double getCapacity() = 0;
-      virtual bool getReadOnly() = 0;
-      virtual std::string getFilePath() = 0;
+      
 
     public:
       // Methods
-      virtual void resize(double newSize) = 0;
-      virtual void clear() = 0;
-      virtual void append(const std::shared_ptr<ArrayBuffer>& buffer) = 0;
-      virtual void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) = 0;
-      virtual double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) = 0;
+      virtual void open(const std::string& path, std::optional<bool> readOnly) = 0;
 
     protected:
       // Hybrid Setup

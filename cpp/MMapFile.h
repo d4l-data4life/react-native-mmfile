@@ -60,15 +60,23 @@ static inline std::string basePath(const std::string &filePath) {
 
 class MMapFile {
 public:
+    // Default C'tor
+    MMapFile() : 
+        size_(0),
+        capacity_(0),
+        data_(nullptr),
+        fd_(-1),
+        readOnly_(false) {}
+
     // Constructor
     MMapFile(const std::string& filePath, bool readOnly = false) :
         size_(0),
         capacity_(0),
         data_(nullptr),
         fd_(-1),
-        readOnly_(readOnly)
+        readOnly_(false)
     {
-        open(filePath);
+        open(filePath, readOnly);
     }
 
     // Destructor
@@ -114,9 +122,70 @@ public:
         return *this;
     }
 
+    void open(const std::string& filePath, bool readOnly = false) 
+    {
+        close();
+        if (filePath.empty()) [[unlikely]] {
+            throw std::runtime_error("Failed to create/open file `filePath` is empty");
+        }
+        if (!createParentDir(filePath)) [[unlikely]] {
+            throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
+        }
+        fd_ = ::open(filePath.c_str(), readOnly ? O_RDONLY : O_RDWR | O_CREAT, 0600);
+        if (fd_ < 0)
+        {
+            throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + strerror(errno));
+        }
+        filePath_ = filePath;
+        readOnly_ = readOnly;
+
+        size_ = getFileSizeFromFd(fd_);
+        if (size_ == (size_t)-1) [[unlikely]] 
+        {
+            ::close(fd_);
+            throw std::runtime_error("Failed to get file size");
+        }
+        capacity_ = size_;
+
+        if (size_ == 0) [[unlikely]] {
+            data_ = nullptr;
+            return;
+        }
+
+        data_ = static_cast<uint8_t *>(mmap(nullptr, capacity_, readOnly ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
+        if (data_ == MAP_FAILED) [[unlikely]] {
+            ::close(fd_);
+            throw std::runtime_error(std::string("Failed to map file ") + filePath + " with size " + std::to_string(size_));
+        }        
+    }
+
+    void close()
+    {
+        if (data_) {
+            munmap(data_, capacity_);
+            data_ = nullptr;
+        }
+
+        if (fd_ >= 0) {
+            fileResize(fd_, size_);
+            ::close(fd_);
+            fd_ = -1;
+
+            // delete file if empty
+            if (!readOnly_ && size_ == 0 && !filePath_.empty()) {
+                remove(filePath_.c_str());
+            }
+        }
+
+        size_ = 0;
+        capacity_ = 0;
+        filePath_.clear();
+    }
+    
     // Resize the file and memory-mapped region
     inline void resize(size_t newSize, bool strictResize = false)
     {
+        assertFileIsOpen();
         if (readOnly_) [[unlikely]]{
             throw std::runtime_error("Trying to resize a read-only file");
         }
@@ -126,10 +195,6 @@ public:
             return;
         }
 
-        // if (data_) [[likely]] {
-        //     munmap(data_, capacity_);
-        // }
-        
         size_t newCapacity = strictResize ? newSize : (newSize | 0xfff); // round up to units of 4KB to avoid frequent resizing
 
         if (!fileResize(fd_, newCapacity)) [[unlikely]]
@@ -159,6 +224,7 @@ public:
     // Write data to the memory-mapped region
     inline void write(size_t offset, const uint8_t *data, size_t length)
     {
+        assertFileIsOpen();
         if (readOnly_) [[unlikely]]{
             throw std::runtime_error("Trying to write to a read-only file");
         }
@@ -173,6 +239,7 @@ public:
     // Read data from the memory-mapped region
     inline size_t read(size_t offset, uint8_t *data, size_t length) const 
     {
+        assertFileIsOpen();
         if (offset >= size()) [[unlikely]]
         {
             return 0;
@@ -203,6 +270,13 @@ public:
     inline size_t capacity() const { return capacity_; }
     inline const std::string& filePath() const { return filePath_; }
     inline bool readOnly() const { return readOnly_; }
+    inline bool isOpen() const { return fd_ >= 0; }
+
+    inline void assertFileIsOpen() const {
+        if (fd_ < 0) [[unlikely]] {
+            throw std::runtime_error("File is not open");
+        }
+    }
 
 private:
     std::string filePath_;
@@ -210,64 +284,6 @@ private:
     uint8_t* data_;
     int fd_;
     bool readOnly_;
-
-    void open(const std::string& filePath) {
-        close();
-        if (filePath.empty()) [[unlikely]] {
-            throw std::runtime_error("Failed to create/open file `filePath` is empty");
-        }
-        if (!createParentDir(filePath)) [[unlikely]] {
-            throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
-        }
-        fd_ = ::open(filePath.c_str(), readOnly_ ? O_RDONLY : O_RDWR | O_CREAT, 0600);
-        if (fd_ < 0)
-        {
-            throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + strerror(errno));
-        }
-        filePath_ = filePath;
-
-        size_ = getFileSizeFromFd(fd_);
-        if (size_ == (size_t)-1) [[unlikely]] 
-        {
-            ::close(fd_);
-            throw std::runtime_error("Failed to get file size");
-        }
-        capacity_ = size_;
-
-        if (size_ == 0) [[unlikely]] {
-            data_ = nullptr;
-            return;
-        }
-
-        data_ = static_cast<uint8_t *>(mmap(nullptr, capacity_, readOnly_ ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
-        if (data_ == MAP_FAILED) [[unlikely]] {
-            ::close(fd_);
-            throw std::runtime_error(std::string("Failed to map file ") + filePath + " with size " + std::to_string(size_));
-        }        
-    }
-
-    void close()
-    {
-        if (data_) {
-            munmap(data_, capacity_);
-            data_ = nullptr;
-        }
-
-        if (fd_ >= 0) {
-            fileResize(fd_, size_);
-            ::close(fd_);
-            fd_ = -1;
-
-            // delete file if empty
-            if (!readOnly_ && size_ == 0 && !filePath_.empty()) {
-                remove(filePath_.c_str());
-            }
-        }
-
-        size_ = 0;
-        capacity_ = 0;
-        filePath_.clear();
-    }
 };
 
 #endif // MMAPFILE_H

@@ -28,7 +28,10 @@ public:
     double getCapacity() override;
     bool getReadOnly() override;
     std::string getFilePath() override;
+    bool getIsOpen() override;
 
+    void open(const std::string& path, std::optional<bool> readOnly) override;
+    void close() override;
     void resize(double newSize) override;
     void clear() override;
     void append(const std::shared_ptr<ArrayBuffer>& buffer) override;
@@ -57,7 +60,10 @@ public:
     double getCapacity() override;
     bool getReadOnly() override;
     std::string getFilePath() override;
+    bool getIsOpen() override;
 
+    void open(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) override;
+    void close() override;
     void resize(double newSize) override;
     void clear() override;
     void append(const std::shared_ptr<ArrayBuffer>& buffer) override;

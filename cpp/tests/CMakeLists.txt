@@ -12,7 +12,7 @@ set(CMAKE_ANDROID_ARCH_ABI arm64-v8a)
 # Enable testing
 enable_testing()
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
 # Add gtest
 find_package(GTest REQUIRED)

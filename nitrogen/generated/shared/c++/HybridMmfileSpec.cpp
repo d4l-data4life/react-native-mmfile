@@ -12,17 +12,10 @@ namespace margelo::nitro::mmfile {
   void HybridMmfileSpec::loadHybridMethods() {
     // load base methods/properties
     HybridObject::loadHybridMethods();
+    HybridMmfileBaseSpec::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("size", &HybridMmfileSpec::getSize);
-      prototype.registerHybridGetter("capacity", &HybridMmfileSpec::getCapacity);
-      prototype.registerHybridGetter("readOnly", &HybridMmfileSpec::getReadOnly);
-      prototype.registerHybridGetter("filePath", &HybridMmfileSpec::getFilePath);
-      prototype.registerHybridMethod("resize", &HybridMmfileSpec::resize);
-      prototype.registerHybridMethod("clear", &HybridMmfileSpec::clear);
-      prototype.registerHybridMethod("append", &HybridMmfileSpec::append);
-      prototype.registerHybridMethod("write", &HybridMmfileSpec::write);
-      prototype.registerHybridMethod("read", &HybridMmfileSpec::read);
+      prototype.registerHybridMethod("open", &HybridMmfileSpec::open);
     });
   }
 

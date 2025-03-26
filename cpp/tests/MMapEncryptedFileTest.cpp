@@ -48,14 +48,14 @@ TEST(MMapEncryptedFileTest, ReopenTest) {
 
   std::string key(16, '\0');
   fillRandom(key);
-  {
-    MMapEncryptedFile file(filePath, reinterpret_cast<const uint8_t*>(key.data()));
-    file.clear();
-    ASSERT_EQ(file.size(), 0);
-    std::string str = "Hello World";
-    file.append(reinterpret_cast<uint8_t*>(const_cast<char*>(str.data())), str.size());
-    ASSERT_EQ(file.size(), 11);
-  }
+  MMapEncryptedFile file(filePath, reinterpret_cast<const uint8_t*>(key.data()));
+  file.clear();
+  ASSERT_EQ(file.size(), 0);
+  std::string str = "Hello World";
+  file.append(reinterpret_cast<uint8_t*>(const_cast<char*>(str.data())), str.size());
+  ASSERT_EQ(file.size(), 11);
+  file.close();
+
   MMapEncryptedFile file2(filePath, reinterpret_cast<const uint8_t*>(key.data()));
   uint8_t buffer[15];
   size_t readCount = file2.read(3, buffer, 15);
