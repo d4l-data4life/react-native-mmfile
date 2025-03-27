@@ -23,8 +23,20 @@ Pod::Spec.new do |s|
   ]
 
   s.pod_target_xcconfig = {
+    # Ensure only ARM64 builds (iOS devices, not Intel simulators)
+    "VALID_ARCHS[sdk=iphoneos*]" => "arm64",
+    "VALID_ARCHS[sdk=iphonesimulator*]" => "",
+
+    # Ensure correct architecture for iOS
+    "ARCHS[sdk=iphoneos*]" => "arm64",
+    "ARCHS[sdk=iphonesimulator*]" => "",
+
     # C++ compiler flags, mainly for folly.
-    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) FOLLY_NO_CONFIG FOLLY_CFG_NO_COROUTINES"
+    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) FOLLY_NO_CONFIG FOLLY_CFG_NO_COROUTINES",
+
+    # Enforce armv8-a+crypto optimizations only on real iOS devices
+    "OTHER_CPLUSPLUSFLAGS[sdk=iphoneos*]" => "$(inherited) -march=armv8-a+crypto",
+    "OTHER_CPLUSPLUSFLAGS[sdk=iphonesimulator*]" => "$(inherited)"
   }
 
   load 'nitrogen/generated/ios/NitroMmfile+autolinking.rb'

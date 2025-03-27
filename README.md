@@ -1,4 +1,4 @@
-# react-native-nitro-template
+# react-native-mmfile
 
 This is a template for Nitro Modules.
 
