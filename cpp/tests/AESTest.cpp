@@ -159,7 +159,6 @@ const uint8_t ciphertext[4*16] = {
 };
 
 
-#if 0
 TEST(AESTest, EncryptCTR_AES128_Manual) {
 	// NIST SP 800-38A, Appendix F.5.1
 	const uint8_t output[4][16] = {
@@ -229,5 +228,3 @@ TEST(AESTest, DecryptCTR_AES128) {
 			}
 		}
 }
-
-#endif

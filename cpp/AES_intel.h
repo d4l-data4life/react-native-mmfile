@@ -201,6 +201,8 @@ struct CIPHER_BLOCK<AES<KEY_LENGTH>> {
 
 // Increment a 128-bit counter stored in a NEON register
 static inline __m128i counterInc(__m128i counter) {
+    const __m128i mask = _mm_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+    counter = _mm_shuffle_epi8(counter, mask);
     const __m128i ONE = _mm_setr_epi32(1, 0, 0, 0);
     const __m128i ZERO = _mm_setzero_si128();
 
@@ -209,7 +211,7 @@ static inline __m128i counterInc(__m128i counter) {
     t = _mm_and_si128(t, ONE);
     t = _mm_unpacklo_epi64(ZERO, t);
     counter = _mm_add_epi64(counter, t);
-    return counter;
+    return _mm_shuffle_epi8(counter, mask);
 }
 
 static inline void counterInc(uint8_t *counter) {
@@ -218,6 +220,9 @@ static inline void counterInc(uint8_t *counter) {
 }
 
 static inline __m128i counterAdd(__m128i counter, uint64_t delta) {
+    const __m128i mask = _mm_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+    counter = _mm_shuffle_epi8(counter, mask);
+
     // Vector to add [1, 0] (increment lower 64 bits)
     __m128i delta64x2 = _mm_set_epi64x(0, delta);
 
@@ -228,24 +233,9 @@ static inline __m128i counterAdd(__m128i counter, uint64_t delta) {
     __m128i carry = _mm_cmpgt_epi64(counter, incremented); // Will set to all ones if carry occurred
 
     // Add carry to upper 64-bit half
-    return _mm_sub_epi64(incremented, _mm_srli_si128(carry, 8)); // Shift carry and subtract it
+    counter = _mm_sub_epi64(incremented, _mm_srli_si128(carry, 8)); // Shift carry and subtract it
 
-    // // Reinterpret as a 64-bit vector (uint64x2_t)
-    // uint64x2_t counter64x2 = FixEndianness64(vreinterpretq_u64_u8(counter));
-
-    // // Vector to add [1, 0] (increment lower 64 bits)
-    // uint64x2_t delta64x2 = {0, delta};
-
-    // // Add 1 to lower 64 bits
-    // uint64x2_t incremented = vaddq_u64(counter64x2, vreinterpretq_u64_u8(delta64x2));
-
-    // // Detect carry by checking if lower 64 bits overflowed
-    // uint64x2_t carry = vcgtq_u64(counter64x2, incremented); // 0xFFFFFFFF_FFFFFFFF if carry
-
-    // // Add carry to upper 64-bit half
-    // incremented = vsubq_u64(incremented, vextq_u64(carry, carry, 1));
-
-    // return FixEndianness64(vreinterpretq_u8_u64(incremented));
+    return _mm_shuffle_epi8(counter, mask);
 }
 
 
@@ -267,9 +257,22 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
     while (length >= BLOCK_LENGTH) {
         __m128i encryptedCounter = cipher.encryptBlock(counter);
         // XOR the encrypted counter with the input
+        // printf("  %016llx %016llx\n", encryptedCounter[1],encryptedCounter[0]);
 
-        __m128i mask = (BLOCK_OFFSET != 0) ? vextq_u8(prevEncryptedCounter, encryptedCounter, BLOCK_OFFSET) : encryptedCounter;
-        vst1q_u8(output, veorq_u8(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask));
+        __m128i mask;
+        if (BLOCK_OFFSET != 0) {
+        printf("%016llx %016llx\n", prevEncryptedCounter[1],prevEncryptedCounter[0]);
+        printf("%016llx %016llx\n", encryptedCounter[1],encryptedCounter[0]);
+            // Perform byte-wise vector rotation (equivalent to vextq_u8 in ARM)
+            mask = _mm_or_si128(
+                _mm_srli_si128(prevEncryptedCounter, BLOCK_OFFSET), 
+                _mm_slli_si128(encryptedCounter, (16 - BLOCK_OFFSET)));
+
+        printf("    %016llx %016llx\n", mask[1],mask[0]);
+        } else {
+            mask = encryptedCounter;
+        }
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(output), _mm_xor_si128(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask));
         counter = counterInc(counter);
 
         input += BLOCK_LENGTH;
@@ -280,8 +283,20 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
 
     if (length > 0) {
         __m128i encryptedCounter = cipher.encryptBlock(counter);
-        __m128i mask = (BLOCK_OFFSET != 0) ? vextq_u8(prevEncryptedCounter, encryptedCounter, BLOCK_OFFSET) : encryptedCounter;
-        __m128i cyphertext = veorq_u8(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask);
+        __m128i mask;
+        if (BLOCK_OFFSET != 0) {
+        printf("%016llx %016llx\n", prevEncryptedCounter[1],prevEncryptedCounter[0]);
+        printf("%016llx %016llx\n", encryptedCounter[1],encryptedCounter[0]);
+            // Perform byte-wise vector rotation (equivalent to vextq_u8 in ARM)
+            mask = _mm_or_si128(
+                _mm_srli_si128(prevEncryptedCounter, BLOCK_OFFSET), 
+                _mm_slli_si128(encryptedCounter, (16 - BLOCK_OFFSET)));
+
+        printf("  %016llx %016llx\n", mask[1],mask[0]);
+        } else {
+            mask = encryptedCounter;
+        }
+        __m128i cyphertext = _mm_xor_si128(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask);
 
         for (size_t i = 0; i < length; ++i) {
             output[i] = cyphertext[i];
@@ -319,12 +334,17 @@ inline void decryptCTR(BLOCK_CIPHER const &cipher, const uint8_t *iv, const uint
 // XOR-based lightweight data key and IV integrity check
 inline uint16_t hashIVAndKey(const uint8_t* iv, const uint8_t* key) {
     // XOR the IV and key
-    uint32x4_t kx = veorq_u32(
-        FixEndianness32(vld1q_u32((const uint32_t *)iv)), 
-        FixEndianness32(vld1q_u32((const uint32_t *)key)));
-    // XOR the 4 32-bit words into one
-    uint32_t word = kx[0] ^ kx[1] ^ kx[2] ^ kx[3];
+    __m128i kx = _mm_xor_si128(
+        _mm_loadu_si128(reinterpret_cast<const __m128i*>(iv)), 
+        _mm_loadu_si128(reinterpret_cast<const __m128i*>(key)));
+
+    // Extract 32-bit words
+    uint32_t kxArray[4];
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(kxArray), kx);
+
+    // XOR the four 32-bit words together
+    uint32_t word = kxArray[0] ^ kxArray[1] ^ kxArray[2] ^ kxArray[3];
     return (word & 0xffff) ^ (word >> 16);
 }
-*/
+
 #endif // AES_INTEL_H
