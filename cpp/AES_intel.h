@@ -285,21 +285,17 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
         __m128i encryptedCounter = cipher.encryptBlock(counter);
         __m128i mask;
         if (BLOCK_OFFSET != 0) {
-        printf("%016llx %016llx\n", prevEncryptedCounter[1],prevEncryptedCounter[0]);
-        printf("%016llx %016llx\n", encryptedCounter[1],encryptedCounter[0]);
             // Perform byte-wise vector rotation (equivalent to vextq_u8 in ARM)
             mask = _mm_or_si128(
                 _mm_srli_si128(prevEncryptedCounter, BLOCK_OFFSET), 
                 _mm_slli_si128(encryptedCounter, (16 - BLOCK_OFFSET)));
-
-        printf("  %016llx %016llx\n", mask[1],mask[0]);
         } else {
             mask = encryptedCounter;
         }
         __m128i cyphertext = _mm_xor_si128(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask);
 
         for (size_t i = 0; i < length; ++i) {
-            output[i] = cyphertext[i];
+            output[i] = reinterpret_cast<uint8_t*>(&cyphertext)[i];
         }
     }
 }
