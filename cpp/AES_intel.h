@@ -10,45 +10,6 @@
 #include <immintrin.h>
 #include <stdlib.h>
 
-// SubWord function applies the AES S-box substitution to a 4-byte word
-__attribute__((always_inline)) inline uint32_t SubWord(uint32_t word) {
-    // Broadcast the 32-bit word to a 128-bit register
-    __m128i bytes = _mm_set1_epi32(word);
-    
-    // Perform AES SubBytes transformation using AESENC with a zero key
-    __m128i subBytes = _mm_aesenc_si128(bytes, _mm_setzero_si128());
-
-    // Extract the lower 32 bits as the substituted word
-    return _mm_cvtsi128_si32(subBytes);
-}
-
-// Fix endianness for 32-bit words (if needed)
-__attribute__((always_inline)) static inline __m128i FixEndianness32(__m128i vector) {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    // Byte swap each 32-bit word in the 128-bit vector
-    const __m128i mask = _mm_set_epi8(
-        12, 13, 14, 15,  8,  9, 10, 11,  
-         4,  5,  6,  7,  0,  1,  2,  3
-    );
-    return _mm_shuffle_epi8(vector, mask);
-#else
-    return vector;
-#endif
-}
-
-// Fix endianness for 64-bit words (if needed)
-__attribute__((always_inline)) static inline __m128i FixEndianness64(__m128i vector) {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    // Byte swap each 64-bit word in the 128-bit vector
-    const __m128i mask = _mm_set_epi8(
-        8,  9, 10, 11, 12, 13, 14, 15,  
-        0,  1,  2,  3,  4,  5,  6,  7
-    );
-    return _mm_shuffle_epi8(vector, mask);
-#else
-    return vector;
-#endif
-}
 
 template <typename CIPHER>
 struct CIPHER_BLOCK;
