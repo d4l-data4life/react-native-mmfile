@@ -20,7 +20,7 @@ if (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
 endif()
 
 if (CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
-        target_compile_options(${PACKAGE_NAME} PRIVATE -maes -O2)
+        target_compile_options(${PACKAGE_NAME} PRIVATE -maes -msse4.2 -O2)
 endif()
 
 # Add Nitrogen specs :)
