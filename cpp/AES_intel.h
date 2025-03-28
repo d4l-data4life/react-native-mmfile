@@ -82,23 +82,23 @@ public:
     }
 
     template <int rcon>
-    static inline void expandKey192(__m128i* temp1, __m128i * temp2, __m128i * temp3) {
-        __m128i temp4;
-        *temp2 = _mm_shuffle_epi32(*temp2, 0x55);
+    static inline void expandKey192(__m128i &temp1, __m128i &temp3) {
+        __m128i temp2 = _mm_aeskeygenassist_si128(temp3, rcon);
+        temp2 = _mm_shuffle_epi32(temp2, 0x55);
         
-        temp4 = _mm_slli_si128(*temp1, 0x4);
-        *temp1 = _mm_xor_si128(*temp1, temp4);
+        __m128i temp4 = _mm_slli_si128(temp1, 0x4);
+        temp1 = _mm_xor_si128(temp1, temp4);
         temp4 = _mm_slli_si128(temp4, 0x4);
-        *temp1 = _mm_xor_si128(*temp1, temp4);
+        temp1 = _mm_xor_si128(temp1, temp4);
         temp4 = _mm_slli_si128(temp4, 0x4);
-        *temp1 = _mm_xor_si128(*temp1, temp4);
+        temp1 = _mm_xor_si128(temp1, temp4);
         
-        *temp1 = _mm_xor_si128(*temp1, *temp2);
+        temp1 = _mm_xor_si128(temp1, temp2);
         
-        *temp2 = _mm_shuffle_epi32(*temp1, 0xff);
-        temp4 = _mm_slli_si128(*temp3, 0x4);
-        *temp3 = _mm_xor_si128(*temp3, temp4);
-        *temp3 = _mm_xor_si128(*temp3, *temp2);
+        temp2 = _mm_shuffle_epi32(temp1, 0xff);
+        temp4 = _mm_slli_si128(temp3, 0x4);
+        temp3 = _mm_xor_si128(temp3, temp4);
+        temp3 = _mm_xor_si128(temp3, temp2);
     }
 
     // AES Key Expansion for AES-128
@@ -107,11 +107,11 @@ public:
         const uint32_t *keyW = (const uint32_t *)key;
 
         // Copy the original key to the first round key
-        roundKeys[0] = _mm_loadu_si128(reinterpret_cast<const __m128i*>(key));
         uint32_t *rconPtr = (uint32_t *)RCON;
 
         switch (KEY_LENGTH) {
             case 128:
+                roundKeys[0]  = _mm_loadu_si128((__m128i*)key);
                 roundKeys[1]  = expandKey128<0x01>(roundKeys[0]);
                 roundKeys[2]  = expandKey128<0x02>(roundKeys[1]);
                 roundKeys[3]  = expandKey128<0x04>(roundKeys[2]);
@@ -126,52 +126,41 @@ public:
             
             case 192:
             {
-            __m128i temp1 = _mm_loadu_si128((__m128i*)key);
-            __m128i temp3 = _mm_loadu_si128((__m128i*)(key + 16));
+                __m128i temp1 = roundKeys[0] = _mm_loadu_si128((__m128i*)key);
+                __m128i temp3 = roundKeys[1] = _mm_loadu_si128((__m128i*)(key + 16));
             
-            roundKeys[0] = temp1;
-            roundKeys[1] = temp3;
-        
-            __m128i temp2 = _mm_aeskeygenassist_si128(temp3, 0x1);
-            expandKey192<0x01>(&temp1, &temp2, &temp3);
-            roundKeys[1] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[1], (__m128d)temp1, 0);
-            roundKeys[2] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x2);
-            expandKey192<0x02>(&temp1, &temp2, &temp3);
-            roundKeys[3] = temp1;
-            roundKeys[4] = temp3;
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x4);
-            expandKey192<0x04>(&temp1, &temp2, &temp3);
-            roundKeys[4] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[4], (__m128d)temp1, 0);
-            roundKeys[5] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x8);
-            expandKey192<0x08>(&temp1, &temp2, &temp3);
-            roundKeys[6] = temp1;
-            roundKeys[7] = temp3;
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x10);
-            expandKey192<0x10>(&temp1, &temp2, &temp3);
-            roundKeys[7] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[7], (__m128d)temp1, 0);
-            roundKeys[8] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x20);
-            expandKey192<0x20>(&temp1, &temp2, &temp3);
-            roundKeys[9] = temp1;
-            roundKeys[10] = temp3;
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x40);
-            expandKey192<0x40>(&temp1, &temp2, &temp3);
-            roundKeys[10] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[10], (__m128d)temp1, 0);
-            roundKeys[11] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
-        
-            temp2 = _mm_aeskeygenassist_si128(temp3, 0x80);
-            expandKey192<0x80>(&temp1, &temp2, &temp3);
-            roundKeys[12] = temp1;
-            }
+                expandKey192<0x01>(temp1, temp3);
+                roundKeys[1] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[1], (__m128d)temp1, 0);
+                roundKeys[2] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
+            
+                expandKey192<0x02>(temp1, temp3);
+                roundKeys[3] = temp1;
+                roundKeys[4] = temp3;
+            
+                expandKey192<0x04>(temp1, temp3);
+                roundKeys[4] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[4], (__m128d)temp1, 0);
+                roundKeys[5] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
+            
+                expandKey192<0x08>(temp1, temp3);
+                roundKeys[6] = temp1;
+                roundKeys[7] = temp3;
+
+                expandKey192<0x10>(temp1, temp3);
+                roundKeys[7] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[7], (__m128d)temp1, 0);
+                roundKeys[8] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
+            
+                expandKey192<0x20>(temp1, temp3);
+                roundKeys[9] = temp1;
+                roundKeys[10] = temp3;
+            
+                expandKey192<0x40>(temp1, temp3);
+                roundKeys[10] = (__m128i)_mm_shuffle_pd((__m128d)roundKeys[10], (__m128d)temp1, 0);
+                roundKeys[11] = (__m128i)_mm_shuffle_pd((__m128d)temp1, (__m128d)temp3, 1);
+            
+                expandKey192<0x80>(temp1, temp3);
+                roundKeys[12] = temp1;
                 break;
+            }
 
             case 256:
                 // roundKeys[1] = vld1q_u32(keyW + 4);
@@ -216,7 +205,7 @@ public:
 
     inline void encryptBlock(const uint8_t *input, uint8_t *output) const {
         // Load 16 bytes from input
-        __m128i block = _mm_loadu_si128(reinterpret_cast<const __m128i*>(input));
+        __m128i block = _mm_loadu_si128((__m128i*)input);
         
         // Encrypt the block
         block = encryptBlock(block);
@@ -238,7 +227,7 @@ public:
 
     inline void decryptBlock(const uint8_t *input, uint8_t *output) const {
         // Load 16 bytes from input
-        __m128i block = _mm_loadu_si128(reinterpret_cast<const __m128i*>(input));
+        __m128i block = _mm_loadu_si128((__m128i*)input);
         
         // Encrypt the block
         block = decryptBlock(block);
@@ -303,7 +292,7 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
     constexpr size_t BLOCK_LENGTH = CIPHER_BLOCK<BLOCK_CIPHER>::LENGTH_BYTES;
 
     // Add block number to the nonce (IV)
-    __m128i counter = counterAdd(_mm_loadu_si128(reinterpret_cast<const __m128i*>(iv)), offset / BLOCK_LENGTH);
+    __m128i counter = counterAdd(_mm_loadu_si128((__m128i*)iv), offset / BLOCK_LENGTH);
 
     // If input is not aligned to block boundary, encrypt the first block
     __m128i prevEncryptedCounter;
@@ -323,7 +312,7 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
         } else {
             mask = encryptedCounter;
         }
-        _mm_storeu_si128(reinterpret_cast<__m128i*>(output), _mm_xor_si128(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask));
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(output), _mm_xor_si128(_mm_loadu_si128((__m128i*)input), mask));
         counter = counterInc(counter);
 
         input += BLOCK_LENGTH;
@@ -343,7 +332,7 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
         } else {
             mask = encryptedCounter;
         }
-        __m128i cyphertext = _mm_xor_si128(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask);
+        __m128i cyphertext = _mm_xor_si128(_mm_loadu_si128((__m128i*)input), mask);
 
         for (size_t i = 0; i < length; ++i) {
             output[i] = reinterpret_cast<uint8_t*>(&cyphertext)[i];
@@ -382,8 +371,8 @@ inline void decryptCTR(BLOCK_CIPHER const &cipher, const uint8_t *iv, const uint
 inline uint16_t hashIVAndKey(const uint8_t* iv, const uint8_t* key) {
     // XOR the IV and key
     __m128i kx = _mm_xor_si128(
-        _mm_loadu_si128(reinterpret_cast<const __m128i*>(iv)), 
-        _mm_loadu_si128(reinterpret_cast<const __m128i*>(key)));
+        _mm_loadu_si128((__m128i*)iv), 
+        _mm_loadu_si128((__m128i*)key));
 
     // Extract 32-bit words
     uint32_t kxArray[4];
