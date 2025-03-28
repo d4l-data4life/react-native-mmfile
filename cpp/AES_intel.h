@@ -207,7 +207,7 @@ public:
     inline __m128i decryptBlock(__m128i block) const {
         // AddRoundKey
         block = _mm_xor_si128(block, roundKeys[NUM_ROUNDS]);
-        for (int i = NUM_ROUNDS + 1; i < 2 * NUM_ROUNDS; ++i) {
+        for (unsigned i = NUM_ROUNDS + 1; i < 2 * NUM_ROUNDS; ++i) {
             // Perform SubBytes, ShiftRows, MixColumns and AddRoundKey in one step
             block = _mm_aesdec_si128(block, roundKeys[i]);
         }

@@ -7,7 +7,6 @@ set (CMAKE_CXX_STANDARD 20)
 
 # set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a+crypto")
 
 # Define C++ library and add all sources
 add_library(${PACKAGE_NAME} SHARED
@@ -15,6 +14,14 @@ add_library(${PACKAGE_NAME} SHARED
         ../cpp/HybridMmfile.cpp
         ../cpp/HybridMmfileFactory.cpp
 )
+
+if (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
+        target_compile_options(${PACKAGE_NAME} PRIVATE -march=armv8-a+crypto -O2)
+endif()
+
+if (CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
+        target_compile_options(${PACKAGE_NAME} PRIVATE -maes -O2)
+endif()
 
 # Add Nitrogen specs :)
 include(${CMAKE_SOURCE_DIR}/../nitrogen/generated/android/NitroMmfile+autolinking.cmake)
