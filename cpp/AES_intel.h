@@ -67,22 +67,19 @@ class AES {
 
 public:
     __attribute__((aligned(4)))
-    __m128i roundKeys[NUM_ROUNDS + 1];                           // round keys
+    __m128i roundKeys[2 * NUM_ROUNDS];                           // round keys
 
-    template <int round, int rcon>
-    static inline void expandKey(__m128i* roundKeys) {
+    template <int rcon>
+    static inline __m128i expandKey(__m128i prevKey) {
         
-        __m128i temp = _mm_aeskeygenassist_si128(roundKeys[round - 1], rcon);
+        __m128i temp = _mm_aeskeygenassist_si128(prevKey, rcon);
         temp = _mm_shuffle_epi32(temp, _MM_SHUFFLE(3, 3, 3, 3)); // Extract relevant bytes
 
-        __m128i key = roundKeys[round - 1];
+        __m128i key;
+        key = _mm_xor_si128(prevKey, _mm_slli_si128(prevKey, 4));
         key = _mm_xor_si128(key, _mm_slli_si128(key, 4));
         key = _mm_xor_si128(key, _mm_slli_si128(key, 4));
-        key = _mm_xor_si128(key, _mm_slli_si128(key, 4));
-        key = _mm_xor_si128(key, temp);
-        printf("%32llx %32llx \n", (unsigned long long)key[0],(unsigned long long)key[1]);
-
-        roundKeys[round] = key;
+        return _mm_xor_si128(key, temp);
     }
 
     // AES Key Expansion for AES-128
@@ -96,30 +93,28 @@ public:
 
         switch (KEY_LENGTH) {
             case 128:
-                expandKey<1, 0x01>(roundKeys);
-                expandKey<2, 0x02>(roundKeys);
-                expandKey<3, 0x04>(roundKeys);
-                expandKey<4, 0x08>(roundKeys);
-                expandKey<5, 0x10>(roundKeys);
-                expandKey<6, 0x20>(roundKeys);
-                expandKey<7, 0x40>(roundKeys);
-                expandKey<8, 0x80>(roundKeys);
-                expandKey<9, 0x1B>(roundKeys);
-                expandKey<10, 0x36>(roundKeys);
+                roundKeys[1]  = expandKey<0x01>(roundKeys[0]);
+                roundKeys[2]  = expandKey<0x02>(roundKeys[1]);
+                roundKeys[3]  = expandKey<0x04>(roundKeys[2]);
+                roundKeys[4]  = expandKey<0x08>(roundKeys[3]);
+                roundKeys[5]  = expandKey<0x10>(roundKeys[4]);
+                roundKeys[6]  = expandKey<0x20>(roundKeys[5]);
+                roundKeys[7]  = expandKey<0x40>(roundKeys[6]);
+                roundKeys[8]  = expandKey<0x80>(roundKeys[7]);
+                roundKeys[9]  = expandKey<0x1B>(roundKeys[8]);
+                roundKeys[10] = expandKey<0x36>(roundKeys[9]);
+                roundKeys[11] = _mm_aesimc_si128(roundKeys[9]);
+                roundKeys[12] = _mm_aesimc_si128(roundKeys[8]);
+                roundKeys[13] = _mm_aesimc_si128(roundKeys[7]);
+                roundKeys[14] = _mm_aesimc_si128(roundKeys[6]);
+                roundKeys[15] = _mm_aesimc_si128(roundKeys[5]);
+                roundKeys[16] = _mm_aesimc_si128(roundKeys[4]);
+                roundKeys[17] = _mm_aesimc_si128(roundKeys[3]);
+                roundKeys[18] = _mm_aesimc_si128(roundKeys[2]);
+                roundKeys[19] = _mm_aesimc_si128(roundKeys[1]);
                 break;
             
             case 192:
-                expandKey<1, 0x01>(roundKeys);
-                expandKey<2, 0x02>(roundKeys);
-                expandKey<3, 0x04>(roundKeys);
-                expandKey<4, 0x08>(roundKeys);
-                expandKey<5, 0x10>(roundKeys);
-                expandKey<6, 0x20>(roundKeys);
-                expandKey<7, 0x40>(roundKeys);
-                expandKey<8, 0x80>(roundKeys);
-                expandKey<9, 0x1B>(roundKeys);
-                expandKey<10, 0x36>(roundKeys);
-                
 
                 break;
 
@@ -151,14 +146,14 @@ public:
     }
 
     inline __m128i encryptBlock(__m128i block) const {
-        for (unsigned i = 0; i < NUM_ROUNDS - 1; ++i) {
-            // Perform AddRoundKey, SubBytes, and ShiftRows in one step
+        // AddRoundKey
+        block = _mm_xor_si128(block, roundKeys[0]);
+        for (unsigned i = 1; i < NUM_ROUNDS; ++i) {
+            // Perform SubBytes, ShiftRows, MixColumns and AddRoundKey in one step
             block = _mm_aesenc_si128(block, roundKeys[i]);
         }
-        // Final round: AddRoundKey, SubBytes, and ShiftRows without MixColumns
-        block = _mm_aesenclast_si128(block, roundKeys[NUM_ROUNDS - 1]);
-        // Final AddRoundKey
-        return _mm_xor_si128(block, roundKeys[NUM_ROUNDS]);
+        // Final round: SubBytes, ShiftRows and AddRoundKey without MixColumns
+        return _mm_aesenclast_si128(block, roundKeys[NUM_ROUNDS]);
     }
 
     inline void encryptBlock(const uint8_t *input, uint8_t *output) const {
@@ -173,29 +168,14 @@ public:
     }
 
     inline __m128i decryptBlock(__m128i block) const {
-        // block = AddRoundKey(block, roundKeys[NUM_ROUNDS])
-        // block = InvShiftRows(block)
-        // block = InvSubBytes(block)
-        block = _mm_aesdec_si128(block, roundKeys[NUM_ROUNDS]);
-
-        // block = AddRoundKey(block, roundKeys[NUM_ROUNDS - 1])
-        block = _mm_xor_si128(block, roundKeys[NUM_ROUNDS - 1]);
-
-        __m128i zero = _mm_setzero_si128();
-        
-        for (int i = NUM_ROUNDS - 2; i >= 0; --i) {
-            // block = InvMixColumns(block)
-            block = _mm_aesimc_si128(block);
-
-            // block = InvShiftRows(block)
-            // block = InvSubBytes(block)
-            block = _mm_aesdec_si128(block, zero);
-
-            // block = AddRoundKey(block, roundKeys[i])
-            block = _mm_xor_si128(block, roundKeys[i]);
+        // AddRoundKey
+        block = _mm_xor_si128(block, roundKeys[NUM_ROUNDS]);
+        for (int i = NUM_ROUNDS + 1; i < 2 * NUM_ROUNDS; ++i) {
+            // Perform SubBytes, ShiftRows, MixColumns and AddRoundKey in one step
+            block = _mm_aesdec_si128(block, roundKeys[i]);
         }
-        
-        return block;
+        // Final round: SubBytes, ShiftRows and AddRoundKey without MixColumns
+        return _mm_aesdeclast_si128(block, roundKeys[0]);
     }
 
     inline void decryptBlock(const uint8_t *input, uint8_t *output) const {
