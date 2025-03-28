@@ -14,6 +14,11 @@ enable_testing()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
+# Enable AES AVX instructions on x86_64
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -maes -mavx")
+endif()
+
 # Add gtest
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
