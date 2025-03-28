@@ -50,13 +50,6 @@ __attribute__((always_inline)) static inline __m128i FixEndianness64(__m128i vec
 #endif
 }
 
-// RCON values for AES key expansion
-static const uint32_t RCON[10] = {
-    0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 
-    0x20000000, 0x40000000, 0x80000000, 0x1B000000, 0x36000000
-};
-
-
 template <typename CIPHER>
 struct CIPHER_BLOCK;
 
@@ -101,14 +94,35 @@ public:
         temp3 = _mm_xor_si128(temp3, temp2);
     }
 
+    template <int rcon>
+    inline void expandKey256_part1(__m128i &temp1, __m128i &temp3) {
+        __m128i temp2 = _mm_aeskeygenassist_si128(temp3, rcon);
+        __m128i temp4;
+        temp2 = _mm_shuffle_epi32(temp2, 0xff);
+        temp4 = _mm_slli_si128(temp1, 0x4);
+        temp1 = _mm_xor_si128(temp1, temp4);
+        temp4 = _mm_slli_si128(temp4, 0x4);
+        temp1 = _mm_xor_si128(temp1, temp4);
+        temp4 = _mm_slli_si128(temp4, 0x4);
+        temp1 = _mm_xor_si128(temp1, temp4);
+        temp1 = _mm_xor_si128(temp1, temp2);
+    }
+    
+    inline void expandKey256_part2(__m128i &temp1, __m128i &temp3) {
+        __m128i temp2, temp4;
+        temp4 = _mm_aeskeygenassist_si128(temp1, 0x00);
+        temp2 = _mm_shuffle_epi32(temp4, 0xaa);
+        temp4 = _mm_slli_si128(temp3, 0x4);
+        temp3 = _mm_xor_si128(temp3, temp4);
+        temp4 = _mm_slli_si128(temp4, 0x4);
+        temp3 = _mm_xor_si128(temp3, temp4);
+        temp4 = _mm_slli_si128(temp4, 0x4);
+        temp3 = _mm_xor_si128(temp3, temp4);
+        temp3 = _mm_xor_si128(temp3, temp2);
+    }
+
     // AES Key Expansion for AES-128
     void setKey(const uint8_t *key) {
-        uint32_t *roundKeysW = (uint32_t *)roundKeys;
-        const uint32_t *keyW = (const uint32_t *)key;
-
-        // Copy the original key to the first round key
-        uint32_t *rconPtr = (uint32_t *)RCON;
-
         switch (KEY_LENGTH) {
             case 128:
                 roundKeys[0]  = _mm_loadu_si128((__m128i*)key);
@@ -163,29 +177,44 @@ public:
             }
 
             case 256:
-                // roundKeys[1] = vld1q_u32(keyW + 4);
-                roundKeys[1] = FixEndianness32(roundKeys[1]);
-
-                // AES-256 key expansion loop
-                for (unsigned i = KEY_WORDS; i < (NUM_ROUNDS + 1) * 4; i += KEY_WORDS) {
-                    uint32_t temp = roundKeysW[i - 1];
-
-                    // Perform RotWord, SubWord, and XOR with Rcon
-                    temp = std::__rotl(temp, 8);    // Rotate right by 24 bits (left by 8 bits)
-                    temp = SubWord(temp);           // SubWord
-                    temp ^= *rconPtr++;             // XOR with Rcon
-
-                    // XOR with the word 8 positions back
-                    roundKeysW[i]     = roundKeysW[i - KEY_WORDS]     ^ temp;
-                    roundKeysW[i + 1] = roundKeysW[i - KEY_WORDS + 1] ^ roundKeysW[i];
-                    roundKeysW[i + 2] = roundKeysW[i - KEY_WORDS + 2] ^ roundKeysW[i + 1];
-                    roundKeysW[i + 3] = roundKeysW[i - KEY_WORDS + 3] ^ roundKeysW[i + 2];                    
-                    roundKeysW[i + 4] = roundKeysW[i - KEY_WORDS + 4] ^ SubWord(roundKeysW[i + 3]);
-                    roundKeysW[i + 5] = roundKeysW[i - KEY_WORDS + 5] ^ roundKeysW[i + 4];
-                    roundKeysW[i + 6] = roundKeysW[i - KEY_WORDS + 6] ^ roundKeysW[i + 5];
-                    roundKeysW[i + 7] = roundKeysW[i - KEY_WORDS + 7] ^ roundKeysW[i + 6];
-                }
+            {
+                __m128i temp1 = roundKeys[0] = _mm_loadu_si128((__m128i*)key);
+                __m128i temp3 = roundKeys[1] = _mm_loadu_si128((__m128i*)(key + 16));
+            
+                expandKey256_part1<0x01>(temp1, temp3);
+                roundKeys[2] = temp1;
+                expandKey256_part2(temp1, temp3);
+                roundKeys[3] = temp3;
+            
+                expandKey256_part1<0x02>(temp1, temp3);
+                roundKeys[4] = temp1;
+                expandKey256_part2(temp1, temp3);
+                roundKeys[5] = temp3;
+            
+                expandKey256_part1<0x04>(temp1, temp3);
+                roundKeys[6] = temp1;
+                expandKey256_part2(temp1, temp3);
+                roundKeys[7] = temp3;
+            
+                expandKey256_part1<0x08>(temp1, temp3);
+                roundKeys[8] = temp1;
+                expandKey256_part2(temp1, temp3);
+                roundKeys[9] = temp3;
+            
+                expandKey256_part1<0x10>(temp1, temp3);
+                roundKeys[10] = temp1;
+                expandKey256_part2(temp1, temp3);
+                roundKeys[11] = temp3;
+            
+                expandKey256_part1<0x20>(temp1, temp3);
+                roundKeys[12] = temp1;
+                expandKey256_part2(temp1, temp3);
+                roundKeys[13] = temp3;
+            
+                expandKey256_part1<0x40>(temp1, temp3);
+                roundKeys[14] = temp1;
                 break;
+            }
         }
         for (unsigned i = 1; i < NUM_ROUNDS; ++i) {
             roundKeys[NUM_ROUNDS + i] = _mm_aesimc_si128(roundKeys[NUM_ROUNDS - i]);
