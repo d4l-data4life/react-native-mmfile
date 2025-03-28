@@ -198,48 +198,54 @@ struct CIPHER_BLOCK<AES<KEY_LENGTH>> {
     static constexpr unsigned LENGTH_WORDS = LENGTH_BYTES / 4;
 };
 
-/*
+
 // Increment a 128-bit counter stored in a NEON register
 static inline __m128i counterInc(__m128i counter) {
-    // Reinterpret as a 64-bit vector (uint64x2_t)
-    uint64x2_t counter64x2 = FixEndianness64(vreinterpretq_u64_u8(counter));
+    const __m128i ONE = _mm_setr_epi32(1, 0, 0, 0);
+    const __m128i ZERO = _mm_setzero_si128();
 
-    // Vector to add [1, 0] (increment lower 64 bits)
-    static uint64x2_t one = {0, 1};
-
-    // Add 1 to lower 64 bits
-    uint64x2_t incremented = vaddq_u64(counter64x2, vreinterpretq_u64_u8(one));
-
-    // Detect carry by checking if lower 64 bits overflowed
-    uint64x2_t carry = vcgtq_u64(counter64x2, incremented); // 0xFFFFFFFF_FFFFFFFF if carry
-
-    // Add carry to upper 64-bit half
-    incremented = vsubq_u64(incremented, vextq_u64(carry, carry, 1));
-
-    return FixEndianness64(vreinterpretq_u8_u64(incremented));
+    counter = _mm_add_epi64(counter, ONE);
+    __m128i t = _mm_cmpeq_epi64(counter, ZERO);
+    t = _mm_and_si128(t, ONE);
+    t = _mm_unpacklo_epi64(ZERO, t);
+    counter = _mm_add_epi64(counter, t);
+    return counter;
 }
 
 static inline void counterInc(uint8_t *counter) {
-    vst1q_u8(counter, counterInc(vld1q_u8(counter)));
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(counter), 
+        counterInc(_mm_loadu_si128(reinterpret_cast<__m128i*>(counter))));
 }
 
 static inline __m128i counterAdd(__m128i counter, uint64_t delta) {
-    // Reinterpret as a 64-bit vector (uint64x2_t)
-    uint64x2_t counter64x2 = FixEndianness64(vreinterpretq_u64_u8(counter));
-
     // Vector to add [1, 0] (increment lower 64 bits)
-    uint64x2_t delta64x2 = {0, delta};
+    __m128i delta64x2 = _mm_set_epi64x(0, delta);
 
-    // Add 1 to lower 64 bits
-    uint64x2_t incremented = vaddq_u64(counter64x2, vreinterpretq_u64_u8(delta64x2));
+    // Add 1 to the lower 64 bits
+    __m128i incremented = _mm_add_epi64(counter, delta64x2);
 
-    // Detect carry by checking if lower 64 bits overflowed
-    uint64x2_t carry = vcgtq_u64(counter64x2, incremented); // 0xFFFFFFFF_FFFFFFFF if carry
+    // Detect carry by comparing the counter and incremented values
+    __m128i carry = _mm_cmpgt_epi64(counter, incremented); // Will set to all ones if carry occurred
 
     // Add carry to upper 64-bit half
-    incremented = vsubq_u64(incremented, vextq_u64(carry, carry, 1));
+    return _mm_sub_epi64(incremented, _mm_srli_si128(carry, 8)); // Shift carry and subtract it
 
-    return FixEndianness64(vreinterpretq_u8_u64(incremented));
+    // // Reinterpret as a 64-bit vector (uint64x2_t)
+    // uint64x2_t counter64x2 = FixEndianness64(vreinterpretq_u64_u8(counter));
+
+    // // Vector to add [1, 0] (increment lower 64 bits)
+    // uint64x2_t delta64x2 = {0, delta};
+
+    // // Add 1 to lower 64 bits
+    // uint64x2_t incremented = vaddq_u64(counter64x2, vreinterpretq_u64_u8(delta64x2));
+
+    // // Detect carry by checking if lower 64 bits overflowed
+    // uint64x2_t carry = vcgtq_u64(counter64x2, incremented); // 0xFFFFFFFF_FFFFFFFF if carry
+
+    // // Add carry to upper 64-bit half
+    // incremented = vsubq_u64(incremented, vextq_u64(carry, carry, 1));
+
+    // return FixEndianness64(vreinterpretq_u8_u64(incremented));
 }
 
 
@@ -249,7 +255,7 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
     constexpr size_t BLOCK_LENGTH = CIPHER_BLOCK<BLOCK_CIPHER>::LENGTH_BYTES;
 
     // Add block number to the nonce (IV)
-    __m128i counter = counterAdd(vld1q_u8(iv), offset / BLOCK_LENGTH);
+    __m128i counter = counterAdd(_mm_loadu_si128(reinterpret_cast<const __m128i*>(iv)), offset / BLOCK_LENGTH);
 
     // If input is not aligned to block boundary, encrypt the first block
     __m128i prevEncryptedCounter;
@@ -263,7 +269,7 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
         // XOR the encrypted counter with the input
 
         __m128i mask = (BLOCK_OFFSET != 0) ? vextq_u8(prevEncryptedCounter, encryptedCounter, BLOCK_OFFSET) : encryptedCounter;
-        vst1q_u8(output, veorq_u8(vld1q_u8(input), mask));
+        vst1q_u8(output, veorq_u8(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask));
         counter = counterInc(counter);
 
         input += BLOCK_LENGTH;
@@ -275,7 +281,7 @@ inline void encryptCTRWrapper(BLOCK_CIPHER const &cipher, const uint8_t *iv, con
     if (length > 0) {
         __m128i encryptedCounter = cipher.encryptBlock(counter);
         __m128i mask = (BLOCK_OFFSET != 0) ? vextq_u8(prevEncryptedCounter, encryptedCounter, BLOCK_OFFSET) : encryptedCounter;
-        __m128i cyphertext = veorq_u8(vld1q_u8(input), mask);
+        __m128i cyphertext = veorq_u8(_mm_loadu_si128(reinterpret_cast<const __m128i*>(input)), mask);
 
         for (size_t i = 0; i < length; ++i) {
             output[i] = cyphertext[i];
