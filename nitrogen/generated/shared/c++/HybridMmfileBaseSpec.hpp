@@ -17,6 +17,7 @@
 namespace NitroModules { class ArrayBuffer; }
 
 #include <string>
+#include <optional>
 #include <NitroModules/ArrayBuffer.hpp>
 
 namespace margelo::nitro::mmfile {
@@ -55,9 +56,9 @@ namespace margelo::nitro::mmfile {
     public:
       // Methods
       virtual void close() = 0;
-      virtual void resize(double newSize) = 0;
+      virtual void resize(double newSize, std::optional<bool> strictResize) = 0;
       virtual void clear() = 0;
-      virtual void append(const std::shared_ptr<ArrayBuffer>& buffer) = 0;
+      virtual void append(const std::shared_ptr<ArrayBuffer>& buffer, std::optional<bool> strictResize) = 0;
       virtual void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) = 0;
       virtual double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) = 0;
 

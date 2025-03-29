@@ -8,9 +8,9 @@ export interface MmfileBase extends HybridObject<{ ios: 'c++'; android: 'c++' }>
   readonly isOpen: boolean
 
   close(): void
-  resize(newSize: number): void
+  resize(newSize: number, strictResize?: boolean): void
   clear(): void
-  append(buffer: ArrayBuffer): void
+  append(buffer: ArrayBuffer, strictResize?: boolean): void
   write(offset: number, buffer: ArrayBuffer): void
   read(offset: number, buffer: ArrayBuffer): number
 }

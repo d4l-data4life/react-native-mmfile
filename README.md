@@ -5,6 +5,14 @@
   <h3 align="center">Fastest storage with encryption for React Native.</h3>
 </div>
 
+<div align="center">
+  <a align="center" href="https://github.com/weese?tab=followers">
+    <img src="https://img.shields.io/github/followers/weese?label=Follow%20%40weese&style=social" />
+  </a>
+  <br/>
+</div>
+<br/>
+
 ## Features
 
 - 🚀 **High Performance:** Leverages mmap for memory-mapped file I/O, significantly outperforming [react-native-fs](https://github.com/itinance/react-native-fs).
@@ -26,15 +34,6 @@ bun add react-native-mmfile react-native-nitro-modules
 cd ios && pod install
 ```
 
-<h3>
-  Expo  <a href="#"><img src="./docs/img/expo.png" height="12" /></a>
-</h3>
-
-```sh
-expo install react-native-quick-crypto
-expo prebuild
-```
-
 ## Usage
 
 ```ts
@@ -48,7 +47,10 @@ mmapFile.append(data);
 mmapFile.close();
 ```
 
-## Contributing
+## API Reference
 
-Contribute a change to this template to update it for newer React Native versions.
+The full API reference is available [here](docs/API.md).
 
+## License
+
+MIT

@@ -34,16 +34,16 @@ void HybridMmfile::close() {
     instance->close();
 }
 
-void HybridMmfile::resize(double newSize) {
-    instance->resize((size_t)newSize);
+void HybridMmfile::resize(double newSize, std::optional<bool> strictResize) {
+    instance->resize((size_t)newSize, strictResize.has_value() ? strictResize.value() : false);
 }
 
 void HybridMmfile::clear() {
     instance->clear();
 }
 
-void HybridMmfile::append(const std::shared_ptr<ArrayBuffer>& buffer) {
-    instance->append(buffer->data(), buffer->size());
+void HybridMmfile::append(const std::shared_ptr<ArrayBuffer>& buffer, std::optional<bool> strictResize) {
+    instance->append(buffer->data(), buffer->size(), strictResize.has_value() ? strictResize.value() : false);
 }
 
 void HybridMmfile::write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) {
@@ -85,16 +85,16 @@ void HybridEncryptedMmfile::close() {
     instance->close();
 }
 
-void HybridEncryptedMmfile::resize(double newSize) {
-    instance->resize((size_t)newSize);
+void HybridEncryptedMmfile::resize(double newSize, std::optional<bool> strictResize) {
+    instance->resize((size_t)newSize, strictResize.has_value() ? strictResize.value() : false);
 }
 
 void HybridEncryptedMmfile::clear() {
     instance->clear();
 }
 
-void HybridEncryptedMmfile::append(const std::shared_ptr<ArrayBuffer>& buffer) {
-    instance->append(buffer->data(), buffer->size());
+void HybridEncryptedMmfile::append(const std::shared_ptr<ArrayBuffer>& buffer, std::optional<bool> readOnly) {
+    instance->append(buffer->data(), buffer->size(), readOnly.has_value() ? readOnly.value() : false);
 }
 
 void HybridEncryptedMmfile::write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) {

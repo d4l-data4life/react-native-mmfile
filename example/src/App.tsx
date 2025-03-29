@@ -46,7 +46,11 @@ export default function App() {
 
   async function appendEncryptedMmfile(chunkSize = 16) {
     const buffer = new ArrayBuffer(chunkSize);
-    let mmapFile = openEncryptedMmfile('test1.txt', keyBuffer);
+    let key = new Uint8Array([
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
+      0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff]);
+
+    let mmapFile = openEncryptedMmfile('test1.txt', key.buffer);
     const numWrites = totalSize / chunkSize;
     await measureTime(() => {
       for (let i = 0; i < numWrites; i++) {

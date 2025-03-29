@@ -32,9 +32,9 @@ public:
 
     void open(const std::string& path, std::optional<bool> readOnly) override;
     void close() override;
-    void resize(double newSize) override;
+    void resize(double newSize, std::optional<bool> strictResize) override;
     void clear() override;
-    void append(const std::shared_ptr<ArrayBuffer>& buffer) override;
+    void append(const std::shared_ptr<ArrayBuffer>& buffer, std::optional<bool> strictResize) override;
     void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
     double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
 
@@ -64,9 +64,9 @@ public:
 
     void open(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) override;
     void close() override;
-    void resize(double newSize) override;
+    void resize(double newSize, std::optional<bool> readOnly) override;
     void clear() override;
-    void append(const std::shared_ptr<ArrayBuffer>& buffer) override;
+    void append(const std::shared_ptr<ArrayBuffer>& buffer, std::optional<bool> strictResize) override;
     void write(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
     double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
 
