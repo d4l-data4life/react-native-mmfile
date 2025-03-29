@@ -27,11 +27,7 @@ bool HybridMmfile::getIsOpen() {
 }
 
 void HybridMmfile::open(const std::string& path, std::optional<bool> readOnly) {
-    if (readOnly.has_value()) {
-        instance->open(path, readOnly.value());
-    } else {
-        instance->open(path);
-    }
+    instance->open(path, readOnly.has_value() ? readOnly.value() : false);
 }
 
 void HybridMmfile::close() {
@@ -82,11 +78,7 @@ bool HybridEncryptedMmfile::getIsOpen() {
 }
 
 void HybridEncryptedMmfile::open(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) {
-    if (readOnly.has_value()) {
-        instance->open(path, key->data(), readOnly.value());
-    } else {
-        instance->open(path, key->data());
-    }
+    instance->open(path, key->data(), readOnly.has_value() ? readOnly.value() : false);
 }
 
 void HybridEncryptedMmfile::close() {

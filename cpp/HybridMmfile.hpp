@@ -16,9 +16,9 @@ using namespace facebook;
 class HybridMmfile : public HybridMmfileSpec
 {
 public:
-    HybridMmfile(const std::string& path) : HybridObject(TAG)
+    HybridMmfile(const std::string& path, std::optional<bool> readOnly) : HybridObject(TAG)
     {
-        instance = new MMapFile(path);
+        instance = new MMapFile(path, readOnly.has_value() ? readOnly.value() : false);
         if (instance == nullptr) [[unlikely]] {
             throw std::runtime_error("Failed to create MMapFile instance");
         }
@@ -45,12 +45,12 @@ private:
 class HybridEncryptedMmfile : public HybridEncryptedMmfileSpec
 {
 public:
-    HybridEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) : HybridObject(TAG)
+    HybridEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) : HybridObject(TAG)
     {
         if (key->size() != 16) [[unlikely]] {
             throw std::runtime_error("encryptionKey must be of length 16 but is " + std::to_string(key->size()));
         }
-        instance = new MMapEncryptedFile(path, key->data());
+        instance = new MMapEncryptedFile(path, key->data(), readOnly.has_value() ? readOnly.value() : false);
         if (instance == nullptr) [[unlikely]] {
             throw std::runtime_error("Failed to create MMapEncryptedFile instance");
         }
