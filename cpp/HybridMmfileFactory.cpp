@@ -16,9 +16,9 @@ std::shared_ptr<HybridMmfileSpec> HybridMmfileFactory::openMmfile(const std::str
 std::shared_ptr<HybridEncryptedMmfileSpec> HybridMmfileFactory::openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly)
 {
     if (readOnly.has_value()) {
-        return std::make_shared<HybridEncryptedMmfileSpec>(path, key, readOnly.value());
+        return std::make_shared<HybridEncryptedMmfile>(path, key, readOnly.value());
     } else {
-        return std::make_shared<HybridEncryptedMmfileSpec>(path, key);
+        return std::make_shared<HybridEncryptedMmfile>(path, key);
     }
 }
 
