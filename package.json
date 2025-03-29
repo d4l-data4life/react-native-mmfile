@@ -1,7 +1,7 @@
 {
   "name": "react-native-mmfile",
-  "version": "0.0.1",
-  "description": "react-native-mmfile",
+  "version": "1.0.0",
+  "description": "Fastest storage with encryption for React Native.",
   "main": "lib/index",
   "module": "lib/index",
   "types": "lib/index.d.ts",
@@ -41,18 +41,22 @@
   },
   "keywords": [
     "react-native",
-    "nitro"
+    "storage",
+    "fast",
+    "nitro",
+    "ios",
+    "android"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mrousavy/nitro.git"
+    "url": "git+http://github.com/weese/react-native-mmfile.git"
   },
-  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "author": "David Weese <tre@gmx.de> (https://github.com/weese)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mrousavy/nitro/issues"
+    "url": "http://github.com/weese/react-native-mmfile/issues"
   },
-  "homepage": "https://github.com/mrousavy/nitro#readme",
+  "homepage": "http://github.com/weese/react-native-mmfile#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

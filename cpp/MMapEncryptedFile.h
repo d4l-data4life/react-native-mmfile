@@ -17,6 +17,14 @@ struct Header {
     uint8_t  reserved[14];
 };
 
+template <typename T> static inline T FixEndianness(T val) { return val; }
+
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+template <> static inline uint16_t FixEndianness(uint16_t val) { return __builtin_bswap16(val); }
+template <> static inline uint32_t FixEndianness(uint32_t val) { return __builtin_bswap32(val); }
+template <> static inline uint64_t FixEndianness(uint64_t val) { return __builtin_bswap64(val); }
+#endif
+
 static const char* MMapEncryptedFileErrors[] = {
     "",
     "Encrypted file doesn't have a full header",
@@ -130,7 +138,7 @@ public:
 
     inline size_t size() const { 
         file_.assertFileIsOpen();
-        return reinterpret_cast<Header*>(file_.data())->size; 
+        return FixEndianness(reinterpret_cast<Header*>(file_.data())->size);
     }
     
     inline size_t capacity() const { return file_.size() - sizeof(Header); }
@@ -146,13 +154,13 @@ public:
         }
 
         if (newSize < size()) {
-            // the order is important here to avoid incosistencies
-            reinterpret_cast<Header*>(file_.data())->size = newSize;
+            // the order is important here to avoid inconsistencies
+            reinterpret_cast<Header*>(file_.data())->size = FixEndianness((uint64_t)newSize);
             file_.resize(newSize + sizeof(Header), strictResize);
         } else {
-            // the order is important here to avoid incosistencies
+            // the order is important here to avoid inconsistencies
             file_.resize(newSize + sizeof(Header), strictResize);
-            reinterpret_cast<Header*>(file_.data())->size = newSize;
+            reinterpret_cast<Header*>(file_.data())->size = FixEndianness((uint64_t)newSize);
         }
     }
 
@@ -175,13 +183,13 @@ public:
         }
 
         Header* header = reinterpret_cast<Header*>(file_.data());
-        if (header->magic != MAGIC) {
+        if (FixEndianness(header->magic) != MAGIC) {
             return 2;
         }
-        if (header->version != 1) {
+        if (FixEndianness(header->version) != 1) {
             return 3;
         }
-        if (header->size + sizeof(Header) > file_.size()) {
+        if (FixEndianness(header->size) + sizeof(Header) > file_.size()) {
             return 4;
         }
 
@@ -189,7 +197,7 @@ public:
         uint8_t dataKey[16];
         aes_.decryptBlock(header->encryptedDataKey, dataKey);
 
-        if (header->keyHash != hashIVAndKey(header->iv, dataKey)) {
+        if (FixEndianness(header->keyHash) != hashIVAndKey(header->iv, dataKey)) {
             return 5;
         }
 
@@ -201,8 +209,8 @@ public:
         file_.resize(sizeof(Header), true);
         uint8_t dataKey[16];
         Header* header = reinterpret_cast<Header*>(file_.data());
-        header->magic = MAGIC;
-        header->version = 1;
+        header->magic = FixEndianness(MAGIC);
+        header->version = FixEndianness((uint16_t)1);
         header->size = 0;
         // generate a random data key and encrypt it
         fillRandom(dataKey, 16);
@@ -211,7 +219,7 @@ public:
         // generate a random IV
         fillRandom(header->iv, 16);
         // calculate the hash of the IV and the data key
-        header->keyHash = hashIVAndKey(header->iv, dataKey);
+        header->keyHash = FixEndianness(hashIVAndKey(header->iv, dataKey));
     }
 };
 
