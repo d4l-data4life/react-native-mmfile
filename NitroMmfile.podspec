@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) FOLLY_NO_CONFIG FOLLY_CFG_NO_COROUTINES",
 
     # Enable AES and NEON intrinsics
-    "OTHER_CPLUSPLUSFLAGS[arch=arm64]" => "$(inherited) -march=armv8-a+crypto -O2",
+    "OTHER_CPLUSPLUSFLAGS[arch=arm64]" => "$(inherited) -march=armv8-a+crypto -O3",
     "OTHER_CPLUSPLUSFLAGS[arch=x86_64]" => "$(inherited) -maes -msse4.2 -O2"
   }
 
