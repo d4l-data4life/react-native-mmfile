@@ -51,6 +51,43 @@ mmapFile.close();
 
 The full API reference is available [here](docs/API.md).
 
+## Example App
+
+The example app demonstrates the usage of `react-native-mmfile` and can be found in the `example` directory. To run the example app, follow these steps:
+
+```bash
+cd example
+npm install
+
+# For Android
+npm run android 
+
+# For iOS
+cd ios
+pod install
+npm run ios     
+```
+
+## Run Tests
+
+To run the tests, you need to install GoogleTests first, e.g. with Homebrew:
+
+```bash
+brew install googletest
+```
+
+And then use the following commands:
+
+```bash
+cd cpp/tests
+mkdir build
+cd build
+cmake ..
+cmake --build .
+./mmfile_tests
+ctest
+```
+
 ## License
 
 MIT
