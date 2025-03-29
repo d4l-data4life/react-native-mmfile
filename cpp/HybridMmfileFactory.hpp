@@ -16,8 +16,8 @@ class HybridMmfileFactory : public HybridMmfileFactorySpec
 {
 public:
     HybridMmfileFactory() : HybridObject(TAG) {}
-    std::shared_ptr<HybridMmfileSpec> openMmfile(const std::string& path) override;
-    std::shared_ptr<HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) override;
+    std::shared_ptr<HybridMmfileSpec> openMmfile(const std::string& path, std::optional<bool> readOnly) override;
+    std::shared_ptr<HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) override;
 };
 
 } // namespace margelo::nitro::mmfile

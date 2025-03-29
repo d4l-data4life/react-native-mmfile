@@ -33,7 +33,7 @@ export default function App() {
 
   async function appendMmfile(chunkSize = 16) {
     const buffer = new ArrayBuffer(chunkSize);
-    let mmapFile = openMmfile('test1.txt', keyBuffer);
+    let mmapFile = openMmfile('test1.txt');
     const numWrites = totalSize / chunkSize;
     await measureTime(() => {
       for (let i = 0; i < numWrites; i++) {

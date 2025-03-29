@@ -1,15 +1,19 @@
-# react-native-mmfile
 
-This is a ReactNative module for blazingly fast file I/O with optional encryption.
 
-Features:
+<div align="center">
+  <h1 align="center">react-native-mmfile</h1>
+  <h3 align="center">Fastest storage with encryption for React Native.</h3>
+</div>
 
-- 🚀 High Performance: Leverages mmap for memory-mapped file I/O, significantly outperforming fs and react-native-fs.
+## Features
+
+- 🚀 **High Performance:** Leverages mmap for memory-mapped file I/O, significantly outperforming [react-native-fs](https://github.com/itinance/react-native-fs).
 Built on the new React Native architecture with [NitroModules](https://nitro.margelo.com), it enables zero-copy operations and direct ArrayBuffer access.
-- 📱 Cross-Platform: Seamlessly works on both iOS and Android
-- 🛠️ Simple API: Easily `read`, `write`, or `append` files using the `Mmfile` or `EncryptedMmfile` objects.
-- 🔒 Optional Encryption: Supports AES-128 in CTR mode for real-time encryption/decryption. The cipher is implemented in C++ and optimized for performance using NEON (ARM) and AES-NI (Intel).
-- 📦 Zero Dependencies: No external libraries required—pure, efficient native code.
+- 🛠️ **Simple API:** Easily `read`, `write`, or `append` files using the `Mmfile` or `EncryptedMmfile` objects.
+- 🔒 **Encryption:** Supports AES-128 in CTR mode for real-time encryption/decryption and random access. The cipher is implemented in C++ and optimized for performance using NEON (ARM) and AES-NI (Intel) instructions.
+- 📦 **Zero Dependencies:** No external libraries required—pure, efficient native code.
+- 📱 **Cross-Platform:** Seamlessly works on both iOS and Android
+
 
 ## Installation
 
@@ -39,7 +43,7 @@ import { openMmfile, openEncryptedMmfile } from 'react-native-mmfile';
 // encode 'Hello World' to ArrayBuffer using UTF-8 encoding
 let data = new TextEncoder().encode('Hello World').buffer;
 
-let mmapFile = openMmfile('test1.txt');
+let mmapFile = openMmfile('hello.txt');
 mmapFile.append(data);
 mmapFile.close();
 ```

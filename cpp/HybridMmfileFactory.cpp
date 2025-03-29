@@ -4,14 +4,22 @@
 namespace margelo::nitro::mmfile
 {
 
-std::shared_ptr<HybridMmfileSpec> HybridMmfileFactory::openMmfile(const std::string& path)
+std::shared_ptr<HybridMmfileSpec> HybridMmfileFactory::openMmfile(const std::string& path, std::optional<bool> readOnly)
 {
-    return std::make_shared<HybridMmfile>(path);
+    if (readOnly.has_value()) {
+        return std::make_shared<HybridMmfile>(path, readOnly.value());
+    } else {
+        return std::make_shared<HybridMmfile>(path);
+    }
 }
 
-std::shared_ptr<HybridEncryptedMmfileSpec> HybridMmfileFactory::openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key)
+std::shared_ptr<HybridEncryptedMmfileSpec> HybridMmfileFactory::openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly)
 {
-    return std::make_shared<HybridEncryptedMmfile>(path, key);
+    if (readOnly.has_value()) {
+        return std::make_shared<HybridEncryptedMmfileSpec>(path, key, readOnly.value());
+    } else {
+        return std::make_shared<HybridEncryptedMmfileSpec>(path, key);
+    }
 }
 
 } // namespace margelo::nitro::mmfile

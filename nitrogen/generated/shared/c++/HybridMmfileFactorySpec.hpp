@@ -23,6 +23,7 @@ namespace NitroModules { class ArrayBuffer; }
 #include <memory>
 #include "HybridMmfileSpec.hpp"
 #include <string>
+#include <optional>
 #include "HybridEncryptedMmfileSpec.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 
@@ -57,8 +58,8 @@ namespace margelo::nitro::mmfile {
 
     public:
       // Methods
-      virtual std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec> openMmfile(const std::string& path) = 0;
-      virtual std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key) = 0;
+      virtual std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec> openMmfile(const std::string& path, std::optional<bool> readOnly) = 0;
+      virtual std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) = 0;
 
     protected:
       // Hybrid Setup
