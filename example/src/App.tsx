@@ -11,6 +11,12 @@ import { MovingRectangle } from './MovingRectangle';
 import { openMmfile, openEncryptedMmfile } from 'react-native-mmfile';
 import { MMKV } from 'react-native-mmkv';
 
+import {prepareReactNativeFS, appendReactNativeFS} from './storages/ReactNativeFS';
+import {prepareMMKV, appendMMKV} from './storages/MMKV';
+import {prepareMmfile, appendMmfile} from './storages/Mmfile';
+import {prepareMmfileEncrypted, appendMmfileEncrypted} from './storages/MmfileEncrypted';
+import {prepareMMKVEncrypted, appendMMKVEncrypted} from './storages/MMKVEncrypted';
+
 const storage = new MMKV();
 const totalSize = 1 * 1024 * 1024; // 1 MB
 const keyBuffer: ArrayBuffer = new ArrayBuffer(16);
@@ -31,7 +37,7 @@ export default function App() {
     return res;
   }, []);
 
-  async function appendMmfile(chunkSize = 16) {
+  async function appendMmfileBench(chunkSize = 16) {
     const buffer = new ArrayBuffer(chunkSize);
     let mmapFile = openMmfile('test1.txt');
     const numWrites = totalSize / chunkSize;
@@ -44,7 +50,7 @@ export default function App() {
     mmapFile.close();
   }
 
-  async function appendEncryptedMmfile(chunkSize = 16) {
+  async function appendEncryptedMmfileBench(chunkSize = 16) {
     const buffer = new ArrayBuffer(chunkSize);
     let key = new Uint8Array([
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
@@ -61,7 +67,7 @@ export default function App() {
     mmapFile.close();
   }
   
-  const measureMMKVAppendTime = async (chunkSize = 16) => {
+  const measureMMKVAppendTimeBench = async (chunkSize = 16) => {
     const buffer = new ArrayBuffer(totalSize);
 
     const numWrites = totalSize / chunkSize;
@@ -72,6 +78,87 @@ export default function App() {
       }
     });
   };
+
+  const totalSize = 1 * 1024 * 1024; // 1 MB
+  // const totalSize = 1024;
+  let chunkSize = 16;
+  
+  async function benchmarkNoAppend(
+    chunkSize = 16,
+    label: string,
+    fn: () => unknown | Promise<unknown>,
+  ) {
+    const numWrites = totalSize / chunkSize;
+    try {
+      const buffer = new ArrayBuffer(totalSize);
+      const str = String().padStart(totalSize, "*");
+      const start = performance.now();
+      for (let i = 0; i < numWrites; i++) {
+        fn(buffer.slice(0, (i + 1) * chunkSize), str.slice(0, (i + 1) * chunkSize));
+      }
+      const end = performance.now();
+      const diff = end - start;
+      const throughputMBs = (totalSize / (diff / 1000)) / (1024 * 1024);
+      console.log(`Append "${label}" took ${diff.toFixed(4)} ms, throughput ${throughputMBs.toFixed(2)} MB/s`);
+      return diff;
+    } catch (e) {
+      console.error(`Failed Benchmark "${label}"!`, e);
+      return 0;
+    }
+  }
+  
+  async function benchmark(
+    chunkSize = 16,
+    label: string,
+    fn: () => unknown | Promise<unknown>,
+  ) {
+    const numWrites = totalSize / chunkSize;
+    try {
+      const buffer = new ArrayBuffer(chunkSize);
+      const str = String().padStart(chunkSize, "*");
+      const start = performance.now();
+      for (let i = 0; i < numWrites; i++) {
+        fn(buffer, str);
+      }
+      const end = performance.now();
+      const diff = end - start;
+      const throughputMBs = (totalSize / (diff / 1000)) / (1024 * 1024);
+      console.log(`Append "${label}" took ${diff.toFixed(4)} ms, throughput ${throughputMBs.toFixed(2)} MB/s`);
+      return diff;
+    } catch (e) {
+      console.error(`Failed Benchmark "${label}"!`, e);
+      return 0;
+    }
+  }
+  
+  async function waitForGC(): Promise<void> {
+    // Wait for Garbage Collection to run. We give a 500ms delay.
+    return new Promise(r => setTimeout(r, 500));
+  }
+
+  const runBenchmarks = useCallback(async () => {
+    console.log('Running Benchmark in 3... 2... 1...');
+    for (let chunkSize = 16; chunkSize <= 1024*1024; chunkSize = chunkSize * 2) {
+      console.log('chunkSize: ' + chunkSize);
+      await waitForGC();
+      await prepareMMKV();
+      await benchmarkNoAppend(chunkSize, 'MMKV', appendMMKV);
+      await waitForGC();
+      await prepareMMKVEncrypted();
+      await benchmarkNoAppend(chunkSize, 'MMKV Encrypt', appendMMKVEncrypted);
+      await waitForGC();
+      await prepareMmfile();
+      await benchmark(chunkSize, 'Mmfile', appendMmfile);
+      await waitForGC();
+      await prepareMmfileEncrypted();
+      await benchmark(chunkSize, 'Mmfile Encrypt', appendMmfileEncrypted);
+      // await waitForGC();
+      // await benchmarkNoAppend(chunkSize, 'AsyncStorage', appendAsyncStorage);
+      await waitForGC();
+      await prepareReactNativeFS();
+      await benchmark(chunkSize, 'ReactNativeFS', appendReactNativeFS);
+    }
+  }, []);
   
     return (
     <SafeAreaView style={styles.container}>
@@ -101,7 +188,7 @@ export default function App() {
           <TouchableOpacity
             style={styles.button}
             onPress={async () => {
-              measureMMKVAppendTime(16)
+              measureMMKVAppendTimeBench(16)
             }}
           >
             <Text style={styles.buttonText}>Append 1MB in 16B chunks</Text>
@@ -109,7 +196,7 @@ export default function App() {
           <TouchableOpacity
             style={styles.button}
             onPress={async () => {
-              measureMMKVAppendTime(1024);
+              measureMMKVAppendTimeBench(1024);
             }}
           >
             <Text style={styles.buttonText}>Append 1MB in 1KB chunks</Text>
@@ -121,7 +208,7 @@ export default function App() {
           <TouchableOpacity
             style={styles.button}
             onPress={async () => {
-              appendEncryptedMmfile(16);
+              appendEncryptedMmfileBench(16);
             }}
           >
             <Text style={styles.buttonText}>Append 1MB in 16B chunks</Text>
@@ -129,10 +216,19 @@ export default function App() {
           <TouchableOpacity
             style={styles.button}
             onPress={async () => {
-              appendEncryptedMmfile(1024);
+              appendEncryptedMmfileBench(1024);
             }}
           >
             <Text style={styles.buttonText}>Append 1MB in 1KB chunks</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              runBenchmarks();
+            }}
+          >
+            <Text style={styles.buttonText}>Start Benchmark</Text>
           </TouchableOpacity>
         </View>
       </View>
