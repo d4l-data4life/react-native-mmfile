@@ -22,6 +22,15 @@ Built on the new React Native architecture with [NitroModules](https://nitro.mar
 - 📦 **Zero Dependencies:** No external libraries required—pure, efficient native code.
 - 📱 **Cross-Platform:** Seamlessly works on both iOS and Android
 
+## Performance
+
+To compare the performance of **react-native-mmfile** to the most popular React Native storage modules [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) and [react-native-fs](https://github.com/itinance/react-native-fs), the following benchmark measures the total time it takes to write a file of 1GB by appending chunks of varying sizes (16 bytes to 1MB).
+
+*) It's important to note that MMKV is not a file-based storage solution, but rather a key-value store and doesn't offer an append operation, so it had to overwrite the file each time, but even in a single write operation, it was still slower than **react-native-mmfile**.
+
+<h3>
+  <a href="#"><img src="./docs/img/rtn_benchmark_results_ms.png" /></a>
+</h3>
 
 ## Installation
 
