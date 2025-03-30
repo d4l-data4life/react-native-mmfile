@@ -31,6 +31,20 @@ TEST(MMapFileTest, Resize) {
   file.resize(0, true);
 }
 
+TEST(MMapFileTest, AppendAndClear) {
+  const std::string filePath = "/tmp/testfile3";
+  std::string str = "Hello, NitroModules!";
+
+  MMapFile file(filePath);
+  for (int i = 0; i < 3; ++i) {
+    file.clear();
+    for (int j = 0; j < 1000; ++j) {
+      file.append(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+    }
+  }
+  file.clear();
+}
+
 TEST(MMapFileTest, ThrowsForInvalidFile) {
   ASSERT_THROW(MMapFile("/invalid/path", 1024), std::runtime_error);
 }

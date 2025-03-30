@@ -142,7 +142,7 @@ public:
         size_ = getFileSizeFromFd(fd_);
         if (size_ == (size_t)-1) [[unlikely]] 
         {
-            ::close(fd_);
+            close();
             throw std::runtime_error("Failed to get file size");
         }
         capacity_ = size_;
@@ -154,25 +154,29 @@ public:
 
         data_ = static_cast<uint8_t *>(mmap(nullptr, capacity_, readOnly ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
         if (data_ == MAP_FAILED) [[unlikely]] {
-            ::close(fd_);
+            close();
             throw std::runtime_error(std::string("Failed to map file ") + filePath + " with size " + std::to_string(size_));
         }        
     }
 
-    void close()
+    void close(bool dontTouchFile = false)
     {
         if (data_) {
-            munmap(data_, capacity_);
+            if (data_ != MAP_FAILED) {
+                munmap(data_, capacity_);
+            }
             data_ = nullptr;
         }
 
         if (fd_ >= 0) {
-            fileResize(fd_, size_);
+            if (!readOnly_ && !dontTouchFile) {
+                fileResize(fd_, size_);
+            }
             ::close(fd_);
             fd_ = -1;
 
             // delete file if empty
-            if (!readOnly_ && size_ == 0 && !filePath_.empty()) {
+            if (!readOnly_ && !dontTouchFile && size_ == 0 && !filePath_.empty()) {
                 remove(filePath_.c_str());
             }
         }
@@ -199,22 +203,21 @@ public:
 
         if (!fileResize(fd_, newCapacity)) [[unlikely]]
         {
-            ::close(fd_);
+            close();
             throw std::runtime_error("Failed to resize file");
         }
         size_ = newSize;
 
-        if (size_ == 0) [[unlikely]] {
-            data_ = nullptr;
-            return;
+        uint8_t* newData = nullptr;
+        if (newCapacity != 0) [[likely]] {
+            newData = static_cast<uint8_t *>(mmap(data_, newCapacity, readOnly_ ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
+            if (newData != data_) [[unlikely]] {
+                munmap(data_, capacity_);
+            }
         }
 
-        uint8_t* newData = static_cast<uint8_t *>(mmap(data_, newCapacity, readOnly_ ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
-        if (newData != data_) [[unlikely]] {
-            munmap(data_, capacity_);
-        }
         if (newData == MAP_FAILED) [[unlikely]]{
-            ::close(fd_);
+            close();
             throw std::runtime_error("Failed to map file");
         }
         data_ = newData;
