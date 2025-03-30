@@ -62,7 +62,7 @@ The full API reference is available [here](docs/API.md).
 
 ## Example App
 
-The example app demonstrates the usage of `react-native-mmfile` and can be found in the `example` directory. To run the example app, follow these steps:
+The example app demonstrates the usage of `react-native-mmfile` and can be found in the [example](example) directory. To run the example app, follow these steps:
 
 ```bash
 cd example

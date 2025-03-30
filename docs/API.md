@@ -78,7 +78,7 @@ To improve performance and reduce the number of system calls and remappings, the
 
 - **open**: Open a file. It takes the same arguments as the `openMmfile()` / `openEncryptedMmfile` functions, but reuses the same object.
 - **close**: Close the file.
-- **filePath**: Returns the path to the currently open file, or an empty string if no file is open.
+- **filePath**: Returns the absolute path to the currently open file, or an empty string if no file is open.
 - **isOpen**: Returns `true` if the file is open, `false` otherwise.
 
 If the object is garbage collected, the file is automatically closed, but it is recommended to close it as soon as no more operations are needed, so that it can be resized to its final size.
