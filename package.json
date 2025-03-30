@@ -1,6 +1,6 @@
 {
   "name": "react-native-mmfile",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fastest storage with encryption for React Native.",
   "main": "lib/index",
   "module": "lib/index",
