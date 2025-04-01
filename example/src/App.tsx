@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { MovingRectangle } from './MovingRectangle';
-import { openMmfile, openEncryptedMmfile } from 'react-native-mmfile';
+import { openMmfile, openEncryptedMmfile, unlink, readDir } from 'react-native-mmfile';
 import { MMKV } from 'react-native-mmkv';
 
 import {prepareReactNativeFS, appendReactNativeFS} from './storages/ReactNativeFS';
@@ -201,6 +201,26 @@ export default function App() {
           >
             <Text style={styles.buttonText}>Append 1MB in 1KB chunks</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              console.log('readDir...');
+              try {
+                const files = await readDir("");
+                console.log('files', files);
+                await unlink("");
+                const files2 = await readDir("");
+                console.log('files', files2);
+              } catch (e) {
+                console.error('Error reading directory:', e);
+              }
+              console.log('readDir done');
+            }}
+          >
+            <Text style={styles.buttonText}>Read Directory</Text>
+          </TouchableOpacity>
+
         </View>
 
         <View style={styles.column}>

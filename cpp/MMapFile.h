@@ -15,6 +15,15 @@
 // #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rtnmmrray", __VA_ARGS__))
 
 // Helper functions
+static inline size_t getFileSizeFromName(const std::string& path) {
+    struct stat fileStat;
+    if (stat(path.c_str(), &fileStat) != 0) {
+        perror("fstat");
+        return -1; // Return 0 to indicate an error
+    }
+    return fileStat.st_size;
+}
+
 static inline size_t getFileSizeFromFd(int fd) {
     struct stat fileStat;
     if (fstat(fd, &fileStat) != 0) {

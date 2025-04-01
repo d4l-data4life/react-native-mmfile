@@ -13,8 +13,8 @@
     "androidCxxLibName": "NitroMmfile"
   },
   "autolinking": {
-    "MmfileFactory": {
-      "cpp": "HybridMmfileFactory"
+    "MmfilePackage": {
+      "cpp": "HybridMmfilePackage"
     },
     "MmfilePlatformContext": {
       "swift": "HybridMmfilePlatformContext",

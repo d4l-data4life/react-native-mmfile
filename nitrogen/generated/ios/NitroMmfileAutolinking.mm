@@ -10,7 +10,7 @@
 #import "NitroMmfile-Swift-Cxx-Umbrella.hpp"
 #import <type_traits>
 
-#include "HybridMmfileFactory.hpp"
+#include "HybridMmfilePackage.hpp"
 #include "HybridMmfilePlatformContextSpecSwift.hpp"
 
 @interface NitroMmfileAutolinking : NSObject
@@ -23,12 +23,12 @@
   using namespace margelo::nitro::mmfile;
 
   HybridObjectRegistry::registerHybridObjectConstructor(
-    "MmfileFactory",
+    "MmfilePackage",
     []() -> std::shared_ptr<HybridObject> {
-      static_assert(std::is_default_constructible_v<HybridMmfileFactory>,
-                    "The HybridObject \"HybridMmfileFactory\" is not default-constructible! "
+      static_assert(std::is_default_constructible_v<HybridMmfilePackage>,
+                    "The HybridObject \"HybridMmfilePackage\" is not default-constructible! "
                     "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
-      return std::make_shared<HybridMmfileFactory>();
+      return std::make_shared<HybridMmfilePackage>();
     }
   );
   HybridObjectRegistry::registerHybridObjectConstructor(

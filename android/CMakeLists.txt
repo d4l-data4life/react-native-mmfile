@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(${PACKAGE_NAME} SHARED
         src/main/cpp/cpp-adapter.cpp
         ../cpp/HybridMmfile.cpp
-        ../cpp/HybridMmfileFactory.cpp
+        ../cpp/HybridMmfilePackage.cpp
 )
 
 if (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")

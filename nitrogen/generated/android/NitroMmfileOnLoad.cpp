@@ -16,7 +16,7 @@
 #include <NitroModules/HybridObjectRegistry.hpp>
 
 #include "JHybridMmfilePlatformContextSpec.hpp"
-#include "HybridMmfileFactory.hpp"
+#include "HybridMmfilePackage.hpp"
 #include <NitroModules/JNISharedPtr.hpp>
 #include <NitroModules/DefaultConstructableObject.hpp>
 
@@ -33,12 +33,12 @@ int initialize(JavaVM* vm) {
 
     // Register Nitro Hybrid Objects
     HybridObjectRegistry::registerHybridObjectConstructor(
-      "MmfileFactory",
+      "MmfilePackage",
       []() -> std::shared_ptr<HybridObject> {
-        static_assert(std::is_default_constructible_v<HybridMmfileFactory>,
-                      "The HybridObject \"HybridMmfileFactory\" is not default-constructible! "
+        static_assert(std::is_default_constructible_v<HybridMmfilePackage>,
+                      "The HybridObject \"HybridMmfilePackage\" is not default-constructible! "
                       "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
-        return std::make_shared<HybridMmfileFactory>();
+        return std::make_shared<HybridMmfilePackage>();
       }
     );
     HybridObjectRegistry::registerHybridObjectConstructor(

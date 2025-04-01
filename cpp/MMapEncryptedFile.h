@@ -7,7 +7,7 @@
 #include "AES.h"
 
 // header size should be a multiple of 16 bytes (64 bytes)
-struct Header {
+struct EncryptedFileHeader {
     uint16_t magic;
     uint16_t version;
     uint64_t size;
@@ -28,7 +28,7 @@ template <> static inline uint64_t FixEndianness(uint64_t val) { return __builti
 static const char* MMapEncryptedFileErrors[] = {
     "",
     "Encrypted file doesn't have a full header",
-    "Header's magic number doesn't match",
+    "Encrypted file header's magic number doesn't match",
     "Unsupported version",
     "Encrypted file is shorter than the header declares",
     "Wrong encryption key"
@@ -75,7 +75,7 @@ public:
         }
         // resize the file to the correct size (for handling the case when the app crashes before the file is closed)
         if (!file_.readOnly()) [[likely]] {
-            file_.resize(sizeof(Header) + size(), true);
+            file_.resize(sizeof(EncryptedFileHeader) + size(), true);
         }
     }
 
@@ -100,9 +100,9 @@ public:
         }
         encryptCTR(
             aesData_,
-            reinterpret_cast<Header*>(file_.data())->iv,
+            reinterpret_cast<EncryptedFileHeader*>(file_.data())->iv,
             data,
-            file_.data() + sizeof(Header) + offset,
+            file_.data() + sizeof(EncryptedFileHeader) + offset,
             length,
             offset);
     }
@@ -122,8 +122,8 @@ public:
         std::string result = std::string(length, '\0');
         decryptCTR(
             aesData_,
-            reinterpret_cast<Header*>(file_.data())->iv,
-            file_.data() + sizeof(Header) + offset,
+            reinterpret_cast<EncryptedFileHeader*>(file_.data())->iv,
+            file_.data() + sizeof(EncryptedFileHeader) + offset,
             data,
             length,
             offset);
@@ -138,10 +138,10 @@ public:
 
     inline size_t size() const { 
         file_.assertFileIsOpen();
-        return FixEndianness(reinterpret_cast<Header*>(file_.data())->size);
+        return FixEndianness(reinterpret_cast<EncryptedFileHeader*>(file_.data())->size);
     }
     
-    inline size_t capacity() const { return file_.size() - sizeof(Header); }
+    inline size_t capacity() const { return file_.size() - sizeof(EncryptedFileHeader); }
     inline bool readOnly() const { return file_.readOnly(); }
     inline const std::string& filePath() const { return file_.filePath(); }
     inline bool isOpen() const { return file_.isOpen(); }
@@ -155,12 +155,12 @@ public:
 
         if (newSize < size()) {
             // the order is important here to avoid inconsistencies
-            reinterpret_cast<Header*>(file_.data())->size = FixEndianness((uint64_t)newSize);
-            file_.resize(newSize + sizeof(Header), strictResize);
+            reinterpret_cast<EncryptedFileHeader*>(file_.data())->size = FixEndianness((uint64_t)newSize);
+            file_.resize(newSize + sizeof(EncryptedFileHeader), strictResize);
         } else {
             // the order is important here to avoid inconsistencies
-            file_.resize(newSize + sizeof(Header), strictResize);
-            reinterpret_cast<Header*>(file_.data())->size = FixEndianness((uint64_t)newSize);
+            file_.resize(newSize + sizeof(EncryptedFileHeader), strictResize);
+            reinterpret_cast<EncryptedFileHeader*>(file_.data())->size = FixEndianness((uint64_t)newSize);
         }
     }
 
@@ -178,18 +178,18 @@ public:
             initHeader();
             return 0;
         }
-        if (file_.size() < sizeof(Header)) {
+        if (file_.size() < sizeof(EncryptedFileHeader)) {
             return 1;
         }
 
-        Header* header = reinterpret_cast<Header*>(file_.data());
+        EncryptedFileHeader* header = reinterpret_cast<EncryptedFileHeader*>(file_.data());
         if (FixEndianness(header->magic) != MAGIC) {
             return 2;
         }
         if (FixEndianness(header->version) != 1) {
             return 3;
         }
-        if (FixEndianness(header->size) + sizeof(Header) > file_.size()) {
+        if (FixEndianness(header->size) + sizeof(EncryptedFileHeader) > file_.size()) {
             return 4;
         }
 
@@ -206,9 +206,9 @@ public:
     }
 
     void initHeader() {
-        file_.resize(sizeof(Header), true);
+        file_.resize(sizeof(EncryptedFileHeader), true);
         uint8_t dataKey[16];
-        Header* header = reinterpret_cast<Header*>(file_.data());
+        EncryptedFileHeader* header = reinterpret_cast<EncryptedFileHeader*>(file_.data());
         header->magic = FixEndianness(MAGIC);
         header->version = FixEndianness((uint16_t)1);
         header->size = 0;
