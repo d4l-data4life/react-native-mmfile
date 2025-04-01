@@ -29,28 +29,29 @@ Existing files will be opened, while new files will be created including all par
 
 - **path**: If the path starts with a slash `/`, it is considered an absolute path, otherwise it is considered a path relative to the `baseDirectory` property, which defaults to the following values:
 
-    - Android: `/data/data/<package_name>/files/rtnmmfile`
-    - iOS: `<app_home>/Documents/rtnmmfile`
+  - Android: `/data/data/<package_name>/files/rtnmmfile`
+  - iOS: `<app_home>/Documents/rtnmmfile`
 
   You can change the baseDirectory property to any other directory, but it must be writable by the app.  
 - **key**: The encryption key is passed as an argument and must be a 128-bit key (16 bytes) stored in an `ArrayBuffer`.
 - **readOnly**: The optional argument allows to open an existing file read-only, attempts to modify it, will throw an error.
 
 The function `readDir()` reads a directory and returns a promise with an array of `ReadDirItem` objects. The promise will be rejected if the path is not a directory or if the directory cannot be read.
+
 ```ts
 interface ReadDirItem {
-  mtime: number;          // The last modified date of the file (seconds since epoch)
-  name: string;           // The name of the item
-  path: string;           // The absolute path to the item
-  size: number;           // Size in bytes
-  isFile: boolean;        // Is the item just a file?
-  isDirectory: boolean;   // Is the item a directory?
+  mtime: number;          // last modified date of the file (seconds since epoch)
+  name: string;           // name of the item
+  path: string;           // absolute path to the item
+  size: number;           // size in bytes
+  isFile: boolean;        // true, if item is a file
+  isDirectory: boolean;   // true, if item is a directory
 }
 ```
 
 ### Example
 
-```tsx
+```ts
 import { Mmfile } from 'react-native-mmfile';
 
  // open a file
@@ -69,7 +70,7 @@ let encryptedFile = Mmfile.openEncryptedMmfile('file2', key.buffer);
 
 The objects returned by the `openMmfile()` and `openEncryptedMmfile()` can be used to read and write to the file. They have the following methods:
 
-```tsx
+```ts
 export interface MmfileBase {
   readonly size: number
   readonly capacity: number
