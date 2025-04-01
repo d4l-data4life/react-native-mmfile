@@ -1,11 +1,11 @@
 import { NitroModules } from 'react-native-nitro-modules'
 
-import type { MmfilePackage as MmfilePackageSpec } from './specs/MmfilePackage.nitro'
-import type { MmfilePlatformContext as MmfilePlatformContextSpec } from './specs/MmfilePlatformContext.nitro'
+import type { MmfilePackage } from './specs/MmfilePackage.nitro'
+import type { MmfilePlatformContext } from './specs/MmfilePlatformContext.nitro'
 
-const MmfilePackage = NitroModules.createHybridObject<MmfilePackageSpec>('MmfilePackage')
-const MmfilePlatformContext = NitroModules.createHybridObject<MmfilePlatformContextSpec>('MmfilePlatformContext')
+const MmfilePlatformContextImpl = NitroModules.createHybridObject<MmfilePlatformContext>('MmfilePlatformContext')
+const Mmfile = NitroModules.createHybridObject<MmfilePackage>('MmfilePackage')
 
-MmfilePackage.baseDirectory = MmfilePlatformContext.getBaseDirectory();
+Mmfile.baseDirectory = MmfilePlatformContextImpl.getBaseDirectory();
 
-export default MmfilePackage;
+export { Mmfile };

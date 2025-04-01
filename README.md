@@ -44,14 +44,14 @@ cd ios && pod install
 ## Usage
 
 ```ts
-import { openMmfile, openEncryptedMmfile } from 'react-native-mmfile';
+import { Mmfile } from 'react-native-mmfile';
 
 // encode 'Hello World' to ArrayBuffer using UTF-8 encoding
-let data = new TextEncoder().encode('Hello World').buffer;
+const data = new TextEncoder().encode('Hello World').buffer;
 
-let mmapFile = openMmfile('hello.txt');
-mmapFile.append(data);
-mmapFile.close();
+let file = Mmfile.openMmfile('hello.txt');
+file.append(data);
+file.close();
 ```
 
 ## API Reference

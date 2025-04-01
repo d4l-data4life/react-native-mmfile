@@ -38,11 +38,12 @@ double HybridMmfilePackage::getEncryptedFileSize(const std::string& path) {
 }
 
 std::shared_ptr<Promise<std::vector<ReadDirItem>>> HybridMmfilePackage::readDir(const std::string& path) {
+    std::string absPath = getAbsolutePath(path);
     return Promise<std::vector<ReadDirItem>>::async([=]() -> std::vector<ReadDirItem> {
         // This runs on a separate Thread!
         std::vector<ReadDirItem> items;
         try {
-            for (const auto& entry : std::filesystem::directory_iterator(getAbsolutePath(path))) {
+            for (const auto& entry : std::filesystem::directory_iterator(absPath)) {
                 ReadDirItem item;
                 item.name = entry.path().filename().string();
                 item.path = entry.path().string();
@@ -61,9 +62,10 @@ std::shared_ptr<Promise<std::vector<ReadDirItem>>> HybridMmfilePackage::readDir(
 }
 
 std::shared_ptr<Promise<void>> HybridMmfilePackage::unlink(const std::string& path) {
+    std::string absPath = getAbsolutePath(path);
     return Promise<void>::async([=]() -> void {
         // This runs on a separate Thread!
-        std::filesystem::remove_all(std::filesystem::path(getAbsolutePath(path)));
+        std::filesystem::remove_all(absPath);
       });
 }
 

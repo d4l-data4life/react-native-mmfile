@@ -2,35 +2,68 @@
 
 ## Global Methods
 
-```tsx
-openMmfile(path: string, readOnly?: boolean): Mmfile;
-openEncryptedMmfile(path: string, key: ArrayBuffer, readOnly?: boolean): EncryptedMmfile;
+To use the library, you need to import it first:
+
+```ts
+import { Mmfile } from 'react-native-mmfile';
+```
+
+The `Mmfile` object is a singleton with the following properties and methods:
+
+```ts
+baseDirectory: string;                                                                      // base directory for relative paths
+
+openMmfile(path: string, readOnly?: boolean): Mmfile;                                       // open a file
+openEncryptedMmfile(path: string, key: ArrayBuffer, readOnly?: boolean): EncryptedMmfile;   // open an encrypted file
+
+fileExists(path: string): boolean;                                                          // check if a file exists
+getFileSize(path: string): number;                                                          // get the file size
+getEncryptedFileSize(path: string): number;                                                 // get the content size of an encrypted file
+
+readDir(path: string): Promise<ReadDirItem[]>;                                              // read a directory
+unlink(path: string): Promise<void>;                                                        // delete a file or directory (recursively)
 ```
 
 There are two functions to open a file, `openMmfile()` and `openEncryptedMmfile()`.
 The first one opens a regular file, while the second one opens a file with encryption.
+Existing files will be opened, while new files will be created including all parent folders if they do not exist.
 
-- **path**: The argument is the path to the file to be opened, if it starts with a slash `/`, it is considered an absolute path, otherwise it is considered a relative path and stored in the app's directory. All parent folders are created if they do not exist.
+- **path**: If the path starts with a slash `/`, it is considered an absolute path, otherwise it is considered a path relative to the `baseDirectory` property, which defaults to the following values:
+
+    - Android: `/data/data/<package_name>/files/rtnmmfile`
+    - iOS: `<app_home>/Documents/rtnmmfile`
+
+  You can change the baseDirectory property to any other directory, but it must be writable by the app.  
 - **key**: The encryption key is passed as an argument and must be a 128-bit key (16 bytes) stored in an `ArrayBuffer`.
 - **readOnly**: The optional argument allows to open an existing file read-only, attempts to modify it, will throw an error.
 
-Both functions either open an existing file or create a new one if it does not exist and the `readOnly` argument is not set to `true`. On success, they return a `Mmfile` or `EncryptedMmfile` object, respectively. If the file cannot be opened, an error is thrown.
+The function `readDir()` reads a directory and returns a promise with an array of `ReadDirItem` objects. The promise will be rejected if the path is not a directory or if the directory cannot be read.
+```ts
+interface ReadDirItem {
+  mtime: number;          // The last modified date of the file (seconds since epoch)
+  name: string;           // The name of the item
+  path: string;           // The absolute path to the item
+  size: number;           // Size in bytes
+  isFile: boolean;        // Is the item just a file?
+  isDirectory: boolean;   // Is the item a directory?
+}
+```
 
 ### Example
 
 ```tsx
-import { openMmfile, openEncryptedMmfile } from 'react-native-mmfile';
+import { Mmfile } from 'react-native-mmfile';
 
  // open a file
-let mmapFile = openMmfile('file1');
+let file = Mmfile.openMmfile('file1');
 
 // 128-bit example key
-let key = new Uint8Array([
+const key = new Uint8Array([
     0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
     0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff]);
 
 // open a file with encryption
-let encryptedMmapFile = openEncryptedMmfile('file2', key.buffer);
+let encryptedFile = Mmfile.openEncryptedMmfile('file2', key.buffer);
 ```
 
 ## Mmfile and EncryptedMmfile

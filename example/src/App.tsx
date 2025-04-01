@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { MovingRectangle } from './MovingRectangle';
-import { MmfilePackage } from 'react-native-mmfile';
+import { Mmfile } from 'react-native-mmfile';
 import { MMKV } from 'react-native-mmkv';
 
 import {prepareReactNativeFS, appendReactNativeFS} from './storages/ReactNativeFS';
@@ -39,7 +39,7 @@ export default function App() {
 
   async function appendMmfileBench(chunkSize = 16) {
     const buffer = new ArrayBuffer(chunkSize);
-    let mmapFile = MmfilePackage.openMmfile('test1.txt');
+    let mmapFile = Mmfile.openMmfile('test1.txt');
     const numWrites = totalSize / chunkSize;
     await measureTime(() => {
       for (let i = 0; i < numWrites; i++) {
@@ -56,7 +56,7 @@ export default function App() {
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
       0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff]);
 
-    let mmapFile = MmfilePackage.openEncryptedMmfile('test1.txt', key.buffer);
+    let mmapFile = Mmfile.openEncryptedMmfile('test1.txt', key.buffer);
     const numWrites = totalSize / chunkSize;
     await measureTime(() => {
       for (let i = 0; i < numWrites; i++) {
@@ -207,10 +207,10 @@ export default function App() {
             onPress={async () => {
               console.log('readDir...');
               try {
-                const files = await MmfilePackage.readDir("");
+                const files = await Mmfile.readDir("");
                 console.log('files', files);
-                await MmfilePackage.unlink("");
-                const files2 = await MmfilePackage.readDir("");
+                // await Mmfile.unlink("");
+                const files2 = await Mmfile.readDir("");
                 console.log('files', files2);
               } catch (e) {
                 console.error('Error reading directory:', e);
