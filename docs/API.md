@@ -11,17 +11,16 @@ import { Mmfile } from 'react-native-mmfile';
 The `Mmfile` object is a singleton with the following properties and methods:
 
 ```ts
-baseDirectory: string;                                                                      // base directory for relative paths
+baseDirectory: string;  // base directory for relative paths
 
 openMmfile(path: string, readOnly?: boolean): Mmfile;                                       // open a file
 openEncryptedMmfile(path: string, key: ArrayBuffer, readOnly?: boolean): EncryptedMmfile;   // open an encrypted file
 
-fileExists(path: string): boolean;                                                          // check if a file exists
-getFileSize(path: string): number;                                                          // get the file size
-getEncryptedFileSize(path: string): number;                                                 // get the content size of an encrypted file
-
-readDir(path: string): Promise<ReadDirItem[]>;                                              // read a directory
-unlink(path: string): Promise<void>;                                                        // delete a file or directory (recursively)
+fileExists(path: string): boolean;              // check if a file exists
+getFileSize(path: string): number;              // get the file size
+getEncryptedFileSize(path: string): number;     // get the content size of an encrypted file
+readDir(path: string): Promise<ReadDirItem[]>;  // read a directory
+unlink(path: string): Promise<void>;            // delete a file or directory (recursively)
 ```
 
 There are two functions to open a file, `openMmfile()` and `openEncryptedMmfile()`.
