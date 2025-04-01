@@ -22,9 +22,9 @@ namespace NitroModules { class ArrayBuffer; }
 // Forward declaration of `ReadDirItem` to properly resolve imports.
 namespace margelo::nitro::mmfile { struct ReadDirItem; }
 
+#include <string>
 #include <memory>
 #include "HybridMmfileSpec.hpp"
-#include <string>
 #include <optional>
 #include "HybridEncryptedMmfileSpec.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
@@ -59,7 +59,8 @@ namespace margelo::nitro::mmfile {
 
     public:
       // Properties
-      
+      virtual std::string getBaseDirectory() = 0;
+      virtual void setBaseDirectory(const std::string& baseDirectory) = 0;
 
     public:
       // Methods
@@ -68,7 +69,7 @@ namespace margelo::nitro::mmfile {
       virtual bool fileExists(const std::string& path) = 0;
       virtual double getFileSize(const std::string& path) = 0;
       virtual double getEncryptedFileSize(const std::string& path) = 0;
-      virtual std::shared_ptr<Promise<std::vector<ReadDirItem>>> readDir(const std::string& dirpath) = 0;
+      virtual std::shared_ptr<Promise<std::vector<ReadDirItem>>> readDir(const std::string& path) = 0;
       virtual std::shared_ptr<Promise<void>> unlink(const std::string& path) = 0;
 
     protected:

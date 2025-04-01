@@ -11,6 +11,8 @@ export interface ReadDirItem {
 }
 
 export interface MmfilePackage extends HybridObject<{ ios: 'c++', android: 'c++' }> {
+  baseDirectory: string;
+
   openMmfile(path: string, readOnly?: boolean): Mmfile;
   openEncryptedMmfile(path: string, key: ArrayBuffer, readOnly?: boolean): EncryptedMmfile;
 
@@ -18,6 +20,6 @@ export interface MmfilePackage extends HybridObject<{ ios: 'c++', android: 'c++'
   getFileSize(path: string): number;
   getEncryptedFileSize(path: string): number;
 
-  readDir(dirpath: string): Promise<ReadDirItem[]>
+  readDir(path: string): Promise<ReadDirItem[]>
   unlink(path: string): Promise<void>;
 }

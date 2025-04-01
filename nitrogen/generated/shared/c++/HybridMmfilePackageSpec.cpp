@@ -14,6 +14,8 @@ namespace margelo::nitro::mmfile {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("baseDirectory", &HybridMmfilePackageSpec::getBaseDirectory);
+      prototype.registerHybridSetter("baseDirectory", &HybridMmfilePackageSpec::setBaseDirectory);
       prototype.registerHybridMethod("openMmfile", &HybridMmfilePackageSpec::openMmfile);
       prototype.registerHybridMethod("openEncryptedMmfile", &HybridMmfilePackageSpec::openEncryptedMmfile);
       prototype.registerHybridMethod("fileExists", &HybridMmfilePackageSpec::fileExists);
