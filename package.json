@@ -1,5 +1,5 @@
 {
-  "name": "react-native-mmfile",
+  "name": "@d4l/react-native-mmfile",
   "version": "1.1.0",
   "description": "Fastest storage with encryption for React Native.",
   "main": "lib/index",
@@ -50,14 +50,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+http://github.com/weese/react-native-mmfile.git"
+    "url": "http://github.com/d4l-data4life/react-native-mmfile.git"
   },
   "author": "David Weese <tre@gmx.de> (https://github.com/weese)",
   "license": "MIT",
   "bugs": {
-    "url": "http://github.com/weese/react-native-mmfile/issues"
+    "url": "http://github.com/d4l-data4life/react-native-mmfile/issues"
   },
-  "homepage": "http://github.com/weese/react-native-mmfile#readme",
+  "homepage": "http://github.com/d4l-data4life/react-native-mmfile#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
