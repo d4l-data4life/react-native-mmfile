@@ -54,9 +54,10 @@ file.append(data);
 file.close();
 ```
 
-## API Reference
+## Documentation
 
-The full API reference is available [here](docs/API.md).
+- [Full API reference](docs/API.md)
+- *Nitro Modules — The easiest and fastest way to write React Native modules*, [Medium article](https://medium.com/@dave.weese/nitro-modules-1e0fbffcdda4)
 
 ## Example App
 

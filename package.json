@@ -50,14 +50,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/d4l-data4life/react-native-mmfile.git"
+    "url": "https://github.com/d4l-data4life/react-native-mmfile.git"
   },
   "author": "David Weese <tre@gmx.de> (https://github.com/weese)",
   "license": "MIT",
   "bugs": {
-    "url": "http://github.com/d4l-data4life/react-native-mmfile/issues"
+    "url": "https://github.com/d4l-data4life/react-native-mmfile/issues"
   },
-  "homepage": "http://github.com/d4l-data4life/react-native-mmfile#readme",
+  "homepage": "https://github.com/d4l-data4life/react-native-mmfile#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
