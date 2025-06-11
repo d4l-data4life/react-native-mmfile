@@ -28,7 +28,10 @@ public:
     double getFileSize(const std::string& path) override;
     double getEncryptedFileSize(const std::string& path) override;
 
+    std::vector<ReadDirItem> readDirSync(const std::string& path) override;
     std::shared_ptr<Promise<std::vector<ReadDirItem>>> readDir(const std::string& path) override;
+
+    void unlinkSync(const std::string& path) override;
     std::shared_ptr<Promise<void>> unlink(const std::string& path) override;
 
 private:

@@ -22,7 +22,9 @@ namespace margelo::nitro::mmfile {
       prototype.registerHybridMethod("getFileSize", &HybridMmfilePackageSpec::getFileSize);
       prototype.registerHybridMethod("getEncryptedFileSize", &HybridMmfilePackageSpec::getEncryptedFileSize);
       prototype.registerHybridMethod("readDir", &HybridMmfilePackageSpec::readDir);
+      prototype.registerHybridMethod("readDirSync", &HybridMmfilePackageSpec::readDirSync);
       prototype.registerHybridMethod("unlink", &HybridMmfilePackageSpec::unlink);
+      prototype.registerHybridMethod("unlinkSync", &HybridMmfilePackageSpec::unlinkSync);
     });
   }
 
