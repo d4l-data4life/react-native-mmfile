@@ -5,7 +5,7 @@
 To use the library, you need to import it first:
 
 ```ts
-import { Mmfile } from 'react-native-mmfile';
+import { Mmfile } from '@d4l/react-native-mmfile';
 ```
 
 The `Mmfile` object is a singleton with the following properties and methods:
@@ -52,7 +52,7 @@ interface ReadDirItem {
 ### Example
 
 ```ts
-import { Mmfile } from 'react-native-mmfile';
+import { Mmfile } from '@d4l/react-native-mmfile';
 
  // open a file
 let file = Mmfile.openMmfile('file1');

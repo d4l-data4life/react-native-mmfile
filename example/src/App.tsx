@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { MovingRectangle } from './MovingRectangle';
-import { Mmfile } from 'react-native-mmfile';
+import { Mmfile } from '@d4l/react-native-mmfile';
 import { MMKV } from 'react-native-mmkv';
 
 import {prepareReactNativeFS, appendReactNativeFS} from './storages/ReactNativeFS';
@@ -207,11 +207,21 @@ export default function App() {
             onPress={async () => {
               console.log('readDir...');
               try {
+                let f = Mmfile.openMmfile('test1.txt');
+                const buffer = new ArrayBuffer(1234);
+                f.clear();
+                f.append(buffer);
+                f.close();
+
                 const files = await Mmfile.readDir("");
-                console.log('files', files);
+                console.log('readDir()', files);
                 // await Mmfile.unlink("");
-                const files2 = await Mmfile.readDir("");
-                console.log('files', files2);
+                const files2 = Mmfile.readDirSync("");
+                console.log('readDirSync()', files2);
+
+                // show popup with files
+                alert('Files: ' + JSON.stringify(files2));
+
               } catch (e) {
                 console.error('Error reading directory:', e);
               }

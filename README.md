@@ -44,7 +44,7 @@ cd ios && pod install
 ## Usage
 
 ```ts
-import { Mmfile } from 'react-native-mmfile';
+import { Mmfile } from '@d4l/react-native-mmfile';
 
 // encode 'Hello World' to ArrayBuffer using UTF-8 encoding
 const data = new TextEncoder().encode('Hello World').buffer;
@@ -92,7 +92,6 @@ mkdir build
 cd build
 cmake ..
 cmake --build .
-./mmfile_tests
 ctest
 ```
 

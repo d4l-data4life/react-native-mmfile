@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@d4l/react-native-mmfile": "file:d4l-react-native-mmfile-1.1.1.tgz",
+    "@d4l/react-native-mmfile": "file:d4l-react-native-mmfile-1.2.0.tgz",
     "react": "19.0.0",
     "react-native": "0.78.1",
     "react-native-fs": "^2.20.0",

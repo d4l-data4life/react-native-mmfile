@@ -1,4 +1,4 @@
-import {openEncryptedMmfile} from 'react-native-mmfile';
+import {openEncryptedMmfile} from '@d4l/react-native-mmfile';
 
 const path = 'k3';
 const aeskey = new Uint8Array([

@@ -25,8 +25,8 @@ bool HybridMmfilePackage::fileExists(const std::string& path)
 }
 
 double HybridMmfilePackage::getFileSize(const std::string& path) {
-    size_t size = getFileSizeFromName(getAbsolutePath(path));
-    if (size == (size_t)-1)
+    long long size = getFileSizeFromName(getAbsolutePath(path));
+    if (size == -1)
     {
         throw std::runtime_error(std::string("Error getting file size for file: ") + path);
     }
@@ -34,7 +34,12 @@ double HybridMmfilePackage::getFileSize(const std::string& path) {
 }
 
 double HybridMmfilePackage::getEncryptedFileSize(const std::string& path) {
-    return getFileSize(getAbsolutePath(path)) - sizeof(EncryptedFileHeader);
+    long long size = getFileSizeFromName(getAbsolutePath(path));
+    if (size == -1 || (size > 0 && size < (long long)sizeof(EncryptedFileHeader)))
+    {
+        throw std::runtime_error(std::string("Error getting encrypted file size for file: ") + path);
+    }
+    return size == 0 ? 0 : getFileSize(getAbsolutePath(path)) - sizeof(EncryptedFileHeader);
 }
 
 static std::vector<ReadDirItem> _readDir(const std::string& absPath) {
