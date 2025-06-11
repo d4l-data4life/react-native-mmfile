@@ -70,7 +70,9 @@ namespace margelo::nitro::mmfile {
       virtual double getFileSize(const std::string& path) = 0;
       virtual double getEncryptedFileSize(const std::string& path) = 0;
       virtual std::shared_ptr<Promise<std::vector<ReadDirItem>>> readDir(const std::string& path) = 0;
+      virtual std::vector<ReadDirItem> readDirSync(const std::string& path) = 0;
       virtual std::shared_ptr<Promise<void>> unlink(const std::string& path) = 0;
+      virtual void unlinkSync(const std::string& path) = 0;
 
     protected:
       // Hybrid Setup

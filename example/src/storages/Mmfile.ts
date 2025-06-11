@@ -1,4 +1,4 @@
-import {openMmfile} from 'react-native-mmfile';
+import {openMmfile} from '@d4l/react-native-mmfile';
 
 const path = 'k1';
 

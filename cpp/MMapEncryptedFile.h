@@ -25,15 +25,6 @@ template <> static inline uint32_t FixEndianness(uint32_t val) { return __builti
 template <> static inline uint64_t FixEndianness(uint64_t val) { return __builtin_bswap64(val); }
 #endif
 
-static const char* MMapEncryptedFileErrors[] = {
-    "",
-    "Encrypted file doesn't have a full header",
-    "Encrypted file header's magic number doesn't match",
-    "Unsupported version",
-    "Encrypted file is shorter than the header declares",
-    "Wrong encryption key"
-};
-
 class MMapEncryptedFile
 {
 public:
@@ -68,10 +59,10 @@ public:
     void open(const std::string& filePath, const uint8_t *key, bool readOnly = false) {
         file_.open(filePath, readOnly);
         aes_.setKey(key);
-        int result = readHeader();
-        if (result != 0)
-        {
-            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error: " + MMapEncryptedFileErrors[result]);
+        try {
+            readHeader();
+        } catch (const std::exception& e) {
+            throw std::runtime_error(std::string("Failed to open encrypted file: ") + filePath + ", error: " + e.what());
         }
         // resize the file to the correct size (for handling the case when the app crashes before the file is closed)
         if (!file_.readOnly()) [[likely]] {
@@ -173,24 +164,33 @@ public:
 
     static const uint16_t MAGIC = 0xDA7A;
 
-    int readHeader() {
+    void readHeader() {
         if (file_.size() == 0) {
             initHeader();
-            return 0;
+            return;
         }
         if (file_.size() < sizeof(EncryptedFileHeader)) {
-            return 1;
+            throw std::runtime_error("Encrypted file doesn't have a full header, size: " + std::to_string(file_.size()));
         }
 
         EncryptedFileHeader* header = reinterpret_cast<EncryptedFileHeader*>(file_.data());
         if (FixEndianness(header->magic) != MAGIC) {
-            return 2;
+            throw std::runtime_error("Encrypted file header's magic number doesn't match, expected: " + 
+                std::to_string(MAGIC) +
+                ", got: " + 
+                std::to_string(FixEndianness(header->magic)));
         }
+
         if (FixEndianness(header->version) != 1) {
-            return 3;
+            throw std::runtime_error("Unsupported version: " + std::to_string(FixEndianness(header->version)));
         }
+        
         if (FixEndianness(header->size) + sizeof(EncryptedFileHeader) > file_.size()) {
-            return 4;
+            throw std::runtime_error("Encrypted file is shorter than the header declares, declared size: " + 
+                std::to_string(sizeof(EncryptedFileHeader)) + "+" +
+                std::to_string(FixEndianness(header->size)) + 
+                ", actual size: " + 
+                std::to_string(file_.size()));
         }
 
         // decrypt data key
@@ -198,11 +198,10 @@ public:
         aes_.decryptBlock(header->encryptedDataKey, dataKey);
 
         if (FixEndianness(header->keyHash) != hashIVAndKey(header->iv, dataKey)) {
-            return 5;
+            return throw std::runtime_error("Wrong encryption key, hash mismatch");
         }
 
         aesData_.setKey(dataKey);
-        return 0;
     }
 
     void initHeader() {

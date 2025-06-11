@@ -34,7 +34,7 @@ protected:
         mmapEncryptedFile.clear();
         mmapEncryptedFile.close();
         remove(mmencryptedfilePath.c_str());
-        close(fd);        
+        close(fd);
         remove(filePath.c_str());
     }
 

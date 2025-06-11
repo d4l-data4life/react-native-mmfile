@@ -21,5 +21,8 @@ export interface MmfilePackage extends HybridObject<{ ios: 'c++', android: 'c++'
   getEncryptedFileSize(path: string): number;
 
   readDir(path: string): Promise<ReadDirItem[]>
+  readDirSync(path: string): ReadDirItem[]
+
   unlink(path: string): Promise<void>;
+  unlinkSync(path: string): void;
 }
