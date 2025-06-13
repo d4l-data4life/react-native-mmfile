@@ -284,6 +284,25 @@ public:
     inline bool readOnly() const { return readOnly_; }
     inline bool isOpen() const { return fd_ >= 0; }
 
+    inline void sync(size_t offset, size_t length) {
+        if (length == 0) [[unlikely]] {
+            return; // Nothing to sync
+        }
+        assertFileIsOpen();
+
+        // compute page-aligned offset and length
+        size_t pageSize = sysconf(_SC_PAGE_SIZE);
+        size_t alignedOffset = offset - (offset % pageSize);
+        length += (offset - alignedOffset);
+        if (alignedOffset + length > size_) [[unlikely]] {
+            length = size_ - alignedOffset; // Adjust length to not exceed the size of the file
+        }
+
+        if (msync(data_ + alignedOffset, length, MS_SYNC) == -1) [[unlikely]] {
+            throw std::runtime_error("Failed to sync memory-mapped file: " + std::string(strerror(errno)));
+        }
+    }
+
     inline void assertFileIsOpen() const {
         if (fd_ < 0) [[unlikely]] {
             throw std::runtime_error("File is not open");

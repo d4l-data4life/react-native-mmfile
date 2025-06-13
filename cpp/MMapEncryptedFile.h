@@ -10,7 +10,7 @@
 struct EncryptedFileHeader {
     uint16_t magic;
     uint16_t version;
-    uint64_t size;
+    volatile uint64_t size;
     uint8_t  encryptedDataKey[16];
     uint8_t  iv[16];
     uint16_t keyHash;
@@ -147,6 +147,7 @@ public:
         if (newSize < size()) {
             // the order is important here to avoid inconsistencies
             reinterpret_cast<EncryptedFileHeader*>(file_.data())->size = FixEndianness((uint64_t)newSize);
+            file_.sync(0, sizeof(EncryptedFileHeader));
             file_.resize(newSize + sizeof(EncryptedFileHeader), strictResize);
         } else {
             // the order is important here to avoid inconsistencies
