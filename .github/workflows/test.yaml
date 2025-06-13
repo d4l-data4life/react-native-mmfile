@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ make googletest
+          sudo apt-get install -y cmake g++ make libgtest-dev
 
       - name: Build tests
         working-directory: cpp/tests
