@@ -292,7 +292,12 @@ public:
 
         // compute page-aligned offset and length
         size_t pageSize = sysconf(_SC_PAGE_SIZE);
-        size_t alignedOffset = offset - (offset % pageSize);
+        size_t alignedOffset = offset;
+        if (alignedOffset >= size_) [[unlikely]] {
+            alignedOffset = size_; // Adjust alignedOffset to not exceed the size of the file
+        }
+        alignedOffset -= (alignedOffset % pageSize); // Align to page size
+
         length += (offset - alignedOffset);
         if (alignedOffset + length > size_) [[unlikely]] {
             length = size_ - alignedOffset; // Adjust length to not exceed the size of the file
