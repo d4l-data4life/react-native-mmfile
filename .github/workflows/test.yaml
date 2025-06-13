@@ -1,0 +1,37 @@
+name: C++ Tests
+
+on:
+  push:
+    paths:
+      - 'cpp/**'
+      - '.github/workflows/test.yaml'
+  pull_request:
+    paths:
+      - 'cpp/**'
+      - '.github/workflows/test.yaml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ make
+
+      - name: Build tests
+        working-directory: cpp/tests
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+
+      - name: Run tests
+        working-directory: cpp/tests/build
+        run: |
+          ctest --output-on-failure
