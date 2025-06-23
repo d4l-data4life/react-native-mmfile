@@ -11,20 +11,24 @@ namespace margelo::nitro::mmfile
 
 std::shared_ptr<HybridMmfileSpec> HybridMmfilePackage::openMmfile(const std::string& path, std::optional<bool> readOnly)
 {
+    DEBUG_LOG("openMmfile(" << path << ", readOnly=" << (readOnly ? std::to_string(*readOnly) : "nullopt") << ")");
     return std::make_shared<HybridMmfile>(getAbsolutePath(path), readOnly);
 }
 
 std::shared_ptr<HybridEncryptedMmfileSpec> HybridMmfilePackage::openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly)
 {
+    DEBUG_LOG("openEncryptedMmfile(" << path << ", key=..., readOnly=" << (readOnly ? std::to_string(*readOnly) : "nullopt") << ")");
     return std::make_shared<HybridEncryptedMmfile>(getAbsolutePath(path), key, readOnly);
 }
 
 bool HybridMmfilePackage::fileExists(const std::string& path)
 {
+    DEBUG_LOG("fileExists(" << path << ")");
     return std::filesystem::exists(std::filesystem::path(getAbsolutePath(path)));
 }
 
 double HybridMmfilePackage::getFileSize(const std::string& path) {
+    DEBUG_LOG("getFileSize(" << path << ")");
     long long size = getFileSizeFromName(getAbsolutePath(path));
     if (size == -1)
     {
@@ -34,6 +38,7 @@ double HybridMmfilePackage::getFileSize(const std::string& path) {
 }
 
 double HybridMmfilePackage::getEncryptedFileSize(const std::string& path) {
+    DEBUG_LOG("getEncryptedFileSize(" << path << ")");
     long long size = getFileSizeFromName(getAbsolutePath(path));
     if (size == -1 || (size > 0 && size < (long long)sizeof(EncryptedFileHeader)))
     {
@@ -43,6 +48,7 @@ double HybridMmfilePackage::getEncryptedFileSize(const std::string& path) {
 }
 
 static std::vector<ReadDirItem> _readDir(const std::string& absPath) {
+    DEBUG_LOG("_readDir(" << absPath << ")");
     std::vector<ReadDirItem> items;
     try {
         for (const auto& entry : std::filesystem::directory_iterator(absPath)) {
@@ -63,11 +69,13 @@ static std::vector<ReadDirItem> _readDir(const std::string& absPath) {
 }
 
 std::vector<ReadDirItem> HybridMmfilePackage::readDirSync(const std::string& path) {
+    DEBUG_LOG("readDirSync(" << path << ")");
     std::string absPath = getAbsolutePath(path);
     return _readDir(absPath);
 }
 
 std::shared_ptr<Promise<std::vector<ReadDirItem>>> HybridMmfilePackage::readDir(const std::string& path) {
+    DEBUG_LOG("readDir(" << path << ")");
     std::string absPath = getAbsolutePath(path);
     return Promise<std::vector<ReadDirItem>>::async([=]() -> std::vector<ReadDirItem> {
         // This runs on a separate Thread!
@@ -76,11 +84,13 @@ std::shared_ptr<Promise<std::vector<ReadDirItem>>> HybridMmfilePackage::readDir(
 }
 
 void HybridMmfilePackage::unlinkSync(const std::string& path) {
+    DEBUG_LOG("unlinkSync(" << path << ")");
     std::string absPath = getAbsolutePath(path);
     std::filesystem::remove_all(absPath);
 }
 
 std::shared_ptr<Promise<void>> HybridMmfilePackage::unlink(const std::string& path) {
+    DEBUG_LOG("unlink(" << path << ")");
     std::string absPath = getAbsolutePath(path);
     return Promise<void>::async([=]() -> void {
         // This runs on a separate Thread!

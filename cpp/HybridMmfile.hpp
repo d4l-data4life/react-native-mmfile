@@ -7,6 +7,13 @@
 #include <jsi/jsi.h>
 
 #include <string>
+#include <iostream> // Add for debug logging
+
+// Debug log macro
+#ifndef NITRO_MMFILE_DEBUG
+#define NITRO_MMFILE_DEBUG getenv("NITRO_MMFILE_DEBUG")
+#endif
+#define DEBUG_LOG(msg) do { if (NITRO_MMFILE_DEBUG && std::string(NITRO_MMFILE_DEBUG) == "1") std::cout << "[HybridMmfile] " << msg << std::endl; } while(0)
 
 namespace margelo::nitro::mmfile
 {
