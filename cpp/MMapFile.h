@@ -1,6 +1,7 @@
 #ifndef MMAPFILE_H
 #define MMAPFILE_H
 
+#include <cstdint>
 #include <string>
 #include <stdexcept>
 
@@ -10,9 +11,22 @@
 #include <sys/stat.h> // For fstat
 #include <fcntl.h>    // For open()
 #include <unistd.h>   // For ftruncate(), close()
+#include <unordered_set>
 
 // #include <android/log.h>
 // #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rtnmmrray", __VA_ARGS__))
+
+
+// in-memory set of open file (pairs of dev and ino)
+using DeviceAndInode = std::pair<uint64_t, uint64_t>;
+
+struct DeviceAndInodeHash {
+    std::size_t operator()(const DeviceAndInode& p) const {
+        return std::hash<uint64_t>{}(p.first) ^ (std::hash<uint64_t>{}(p.second) << 1);
+    }
+};
+
+static std::unordered_set<DeviceAndInode, DeviceAndInodeHash> fileLocks;
 
 // Helper functions
 static inline long long getFileSizeFromName(const std::string& path) {
@@ -24,18 +38,19 @@ static inline long long getFileSizeFromName(const std::string& path) {
     return S_ISDIR(fileStat.st_mode) ? 0 : fileStat.st_size;  // Return 0 for directories, otherwise return file size
 }
 
-static inline long long getFileSizeFromFd(int fd) {
-    struct stat fileStat;
-    if (fstat(fd, &fileStat) != 0) {
-        perror("fstat");
-        return -1; // Return -1 to indicate an error
-    }
-    return fileStat.st_size;
-}
-
 // Resize a file to a given size
 static inline bool fileResize(int fd, size_t newSize) {
     return ftruncate(fd, newSize) == 0;
+}
+
+// Lock a file, i.e. add it to the in-memory set of device/inode pairs
+static inline bool fileLock(uint64_t dev, uint64_t ino) {
+    return fileLocks.insert(std::make_pair(dev, ino)).second;
+}
+
+// Unlock a file, i.e. remove it from the in-memory set of device/inode pairs
+static inline void fileUnlock(uint64_t dev, uint64_t ino) {
+    fileLocks.erase(std::make_pair(dev, ino));
 }
 
 // Create a directory and all parent directories if they do not exist
@@ -75,7 +90,9 @@ public:
         capacity_(0),
         data_(nullptr),
         fd_(-1),
-        readOnly_(false) {}
+        readOnly_(false),
+        dev_(-1),
+        ino_(-1) {}
 
     // Constructor
     MMapFile(const std::string& filePath, bool readOnly = false) :
@@ -83,7 +100,9 @@ public:
         capacity_(0),
         data_(nullptr),
         fd_(-1),
-        readOnly_(false)
+        readOnly_(false),
+        dev_(-1),
+        ino_(-1)
     {
         open(filePath, readOnly);
     }
@@ -140,6 +159,8 @@ public:
         if (!createParentDir(filePath)) [[unlikely]] {
             throw std::runtime_error(std::string("Failed to create parent directory for file: ") + filePath);
         }
+
+        // Open the file
         fd_ = ::open(filePath.c_str(), readOnly ? O_RDONLY : O_RDWR | O_CREAT, 0600);
         if (fd_ < 0)
         {
@@ -148,19 +169,29 @@ public:
         filePath_ = filePath;
         readOnly_ = readOnly;
 
-        size_ = getFileSizeFromFd(fd_);
-        if (size_ == (size_t)-1) [[unlikely]] 
-        {
+        struct stat fileStat;
+        if (fstat(fd_, &fileStat) != 0) [[unlikely]] {
             close();
             throw std::runtime_error("Failed to get file size");
         }
-        capacity_ = size_;
 
+        // Lock the file
+        if (!fileLock(fileStat.st_dev, fileStat.st_ino)) [[unlikely]] {
+            close();
+            throw std::runtime_error("Failed to lock file, someone else is already using it: " + filePath);
+        }
+        dev_ = fileStat.st_dev;
+        ino_ = fileStat.st_ino;
+
+        // Get the file size
+        size_ = fileStat.st_size;
+        capacity_ = size_;
         if (size_ == 0) [[unlikely]] {
             data_ = nullptr;
             return;
         }
 
+        // Map the file into memory
         data_ = static_cast<uint8_t *>(mmap(nullptr, capacity_, readOnly ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
         if (data_ == MAP_FAILED) [[unlikely]] {
             close();
@@ -170,6 +201,7 @@ public:
 
     void close(bool dontTouchFile = false)
     {
+        // Unmap the file from memory
         if (data_) {
             if (data_ != MAP_FAILED) {
                 munmap(data_, capacity_);
@@ -177,6 +209,7 @@ public:
             data_ = nullptr;
         }
 
+        // Close the file, resize it if necessary, and delete it if empty
         if (fd_ >= 0) {
             if (!readOnly_ && !dontTouchFile) {
                 fileResize(fd_, size_);
@@ -189,6 +222,13 @@ public:
                 remove(filePath_.c_str());
             }
         }
+
+        // Unlock the file if it was locked
+        if (dev_ != -1ull || ino_ != -1ull) {
+            fileUnlock(dev_, ino_);
+        }
+        dev_ = -1;
+        ino_ = -1;
 
         size_ = 0;
         capacity_ = 0;
@@ -320,6 +360,7 @@ private:
     uint8_t* data_;
     int fd_;
     bool readOnly_;
+    uint64_t dev_, ino_;
 };
 
 #endif // MMAPFILE_H

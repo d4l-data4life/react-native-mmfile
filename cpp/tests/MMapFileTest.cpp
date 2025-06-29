@@ -48,3 +48,14 @@ TEST(MMapFileTest, AppendAndClear) {
 TEST(MMapFileTest, ThrowsForInvalidFile) {
   ASSERT_THROW(MMapFile("/invalid/path", 1024), std::runtime_error);
 }
+
+TEST(MMapFileTest, Locking) {
+  const std::string filePath = "/tmp/testfile4";
+  {
+    // will be closed automatically after the scope
+    MMapFile file(filePath);
+  }
+  MMapFile file2(filePath);
+  MMapFile file3;
+  ASSERT_THROW(file3.open(filePath), std::runtime_error);
+}
