@@ -13,18 +13,18 @@
 
 namespace margelo::nitro::mmfile::bridge::swift {
 
-  // pragma MARK: std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>
-  std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec> create_std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_(void* _Nonnull swiftUnsafePointer) {
+  // pragma MARK: std::shared_ptr<HybridMmfilePlatformContextSpec>
+  std::shared_ptr<HybridMmfilePlatformContextSpec> create_std__shared_ptr_HybridMmfilePlatformContextSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     NitroMmfile::HybridMmfilePlatformContextSpec_cxx swiftPart = NitroMmfile::HybridMmfilePlatformContextSpec_cxx::fromUnsafe(swiftUnsafePointer);
     return std::make_shared<margelo::nitro::mmfile::HybridMmfilePlatformContextSpecSwift>(swiftPart);
   }
-  void* _Nonnull get_std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_(std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_ cppType) {
+  void* NON_NULL get_std__shared_ptr_HybridMmfilePlatformContextSpec_(std__shared_ptr_HybridMmfilePlatformContextSpec_ cppType) noexcept {
     std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::mmfile::HybridMmfilePlatformContextSpecSwift>(cppType);
-  #ifdef NITRO_DEBUG
+    #ifdef NITRO_DEBUG
     if (swiftWrapper == nullptr) [[unlikely]] {
       throw std::runtime_error("Class \"HybridMmfilePlatformContextSpec\" is not implemented in Swift!");
     }
-  #endif
+    #endif
     NitroMmfile::HybridMmfilePlatformContextSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }

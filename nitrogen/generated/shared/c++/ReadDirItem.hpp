@@ -45,14 +45,12 @@ namespace margelo::nitro::mmfile {
 
 namespace margelo::nitro {
 
-  using namespace margelo::nitro::mmfile;
-
   // C++ ReadDirItem <> JS ReadDirItem (object)
   template <>
-  struct JSIConverter<ReadDirItem> final {
-    static inline ReadDirItem fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+  struct JSIConverter<margelo::nitro::mmfile::ReadDirItem> final {
+    static inline margelo::nitro::mmfile::ReadDirItem fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
-      return ReadDirItem(
+      return margelo::nitro::mmfile::ReadDirItem(
         JSIConverter<double>::fromJSI(runtime, obj.getProperty(runtime, "mtime")),
         JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, "name")),
         JSIConverter<std::string>::fromJSI(runtime, obj.getProperty(runtime, "path")),
@@ -61,7 +59,7 @@ namespace margelo::nitro {
         JSIConverter<bool>::fromJSI(runtime, obj.getProperty(runtime, "isDirectory"))
       );
     }
-    static inline jsi::Value toJSI(jsi::Runtime& runtime, const ReadDirItem& arg) {
+    static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::mmfile::ReadDirItem& arg) {
       jsi::Object obj(runtime);
       obj.setProperty(runtime, "mtime", JSIConverter<double>::toJSI(runtime, arg.mtime));
       obj.setProperty(runtime, "name", JSIConverter<std::string>::toJSI(runtime, arg.name));

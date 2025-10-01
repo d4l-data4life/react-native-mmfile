@@ -17,7 +17,6 @@
 
 #include "JHybridMmfilePlatformContextSpec.hpp"
 #include "HybridMmfilePackage.hpp"
-#include <NitroModules/JNISharedPtr.hpp>
 #include <NitroModules/DefaultConstructableObject.hpp>
 
 namespace margelo::nitro::mmfile {
@@ -46,8 +45,7 @@ int initialize(JavaVM* vm) {
       []() -> std::shared_ptr<HybridObject> {
         static DefaultConstructableObject<JHybridMmfilePlatformContextSpec::javaobject> object("com/margelo/nitro/mmfile/HybridMmfilePlatformContext");
         auto instance = object.create();
-        auto globalRef = jni::make_global(instance);
-        return JNISharedPtr::make_shared_from_jni<JHybridMmfilePlatformContextSpec>(globalRef);
+        return instance->cthis()->shared();
       }
     );
   });

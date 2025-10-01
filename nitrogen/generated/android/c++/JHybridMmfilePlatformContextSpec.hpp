@@ -29,6 +29,7 @@ namespace margelo::nitro::mmfile {
     // C++ constructor (called from Java via `initHybrid()`)
     explicit JHybridMmfilePlatformContextSpec(jni::alias_ref<jhybridobject> jThis) :
       HybridObject(HybridMmfilePlatformContextSpec::TAG),
+      HybridBase(jThis),
       _javaPart(jni::make_global(jThis)) {}
 
   public:
@@ -39,6 +40,7 @@ namespace margelo::nitro::mmfile {
 
   public:
     size_t getExternalMemorySize() noexcept override;
+    void dispose() noexcept override;
 
   public:
     inline const jni::global_ref<JHybridMmfilePlatformContextSpec::javaobject>& getJavaPart() const noexcept {

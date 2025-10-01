@@ -19,8 +19,9 @@ public protocol HybridMmfilePlatformContextSpec_protocol: HybridObject {
 }
 
 /// See ``HybridMmfilePlatformContextSpec``
-public class HybridMmfilePlatformContextSpec_base {
+open class HybridMmfilePlatformContextSpec_base {
   private weak var cxxWrapper: HybridMmfilePlatformContextSpec_cxx? = nil
+  public init() { }
   public func getCxxWrapper() -> HybridMmfilePlatformContextSpec_cxx {
   #if DEBUG
     guard self is HybridMmfilePlatformContextSpec else {

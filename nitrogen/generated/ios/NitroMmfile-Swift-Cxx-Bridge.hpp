@@ -34,37 +34,43 @@ namespace margelo::nitro::mmfile::bridge::swift {
    * Specialized version of `std::optional<std::string>`.
    */
   using std__optional_std__string_ = std::optional<std::string>;
-  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) {
+  inline std::optional<std::string> create_std__optional_std__string_(const std::string& value) noexcept {
     return std::optional<std::string>(value);
   }
+  inline bool has_value_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
+    return *optional;
+  }
   
-  // pragma MARK: std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>
+  // pragma MARK: std::shared_ptr<HybridMmfilePlatformContextSpec>
   /**
-   * Specialized version of `std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>`.
+   * Specialized version of `std::shared_ptr<HybridMmfilePlatformContextSpec>`.
    */
-  using std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_ = std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>;
-  std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec> create_std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_(void* _Nonnull swiftUnsafePointer);
-  void* _Nonnull get_std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_(std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_ cppType);
+  using std__shared_ptr_HybridMmfilePlatformContextSpec_ = std::shared_ptr<HybridMmfilePlatformContextSpec>;
+  std::shared_ptr<HybridMmfilePlatformContextSpec> create_std__shared_ptr_HybridMmfilePlatformContextSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridMmfilePlatformContextSpec_(std__shared_ptr_HybridMmfilePlatformContextSpec_ cppType) noexcept;
   
-  // pragma MARK: std::weak_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>
-  using std__weak_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_ = std::weak_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>;
-  inline std__weak_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_ weakify_std__shared_ptr_margelo__nitro__mmfile__HybridMmfilePlatformContextSpec_(const std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec>& strong) { return strong; }
+  // pragma MARK: std::weak_ptr<HybridMmfilePlatformContextSpec>
+  using std__weak_ptr_HybridMmfilePlatformContextSpec_ = std::weak_ptr<HybridMmfilePlatformContextSpec>;
+  inline std__weak_ptr_HybridMmfilePlatformContextSpec_ weakify_std__shared_ptr_HybridMmfilePlatformContextSpec_(const std::shared_ptr<HybridMmfilePlatformContextSpec>& strong) noexcept { return strong; }
   
   // pragma MARK: Result<std::string>
   using Result_std__string_ = Result<std::string>;
-  inline Result_std__string_ create_Result_std__string_(const std::string& value) {
+  inline Result_std__string_ create_Result_std__string_(const std::string& value) noexcept {
     return Result<std::string>::withValue(value);
   }
-  inline Result_std__string_ create_Result_std__string_(const std::exception_ptr& error) {
+  inline Result_std__string_ create_Result_std__string_(const std::exception_ptr& error) noexcept {
     return Result<std::string>::withError(error);
   }
   
   // pragma MARK: Result<std::optional<std::string>>
   using Result_std__optional_std__string__ = Result<std::optional<std::string>>;
-  inline Result_std__optional_std__string__ create_Result_std__optional_std__string__(const std::optional<std::string>& value) {
+  inline Result_std__optional_std__string__ create_Result_std__optional_std__string__(const std::optional<std::string>& value) noexcept {
     return Result<std::optional<std::string>>::withValue(value);
   }
-  inline Result_std__optional_std__string__ create_Result_std__optional_std__string__(const std::exception_ptr& error) {
+  inline Result_std__optional_std__string__ create_Result_std__optional_std__string__(const std::exception_ptr& error) noexcept {
     return Result<std::optional<std::string>>::withError(error);
   }
 

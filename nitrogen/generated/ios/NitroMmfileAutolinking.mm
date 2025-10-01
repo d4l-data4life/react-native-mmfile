@@ -34,7 +34,7 @@
   HybridObjectRegistry::registerHybridObjectConstructor(
     "MmfilePlatformContext",
     []() -> std::shared_ptr<HybridObject> {
-      std::shared_ptr<margelo::nitro::mmfile::HybridMmfilePlatformContextSpec> hybridObject = NitroMmfile::NitroMmfileAutolinking::createMmfilePlatformContext();
+      std::shared_ptr<HybridMmfilePlatformContextSpec> hybridObject = NitroMmfile::NitroMmfileAutolinking::createMmfilePlatformContext();
       return hybridObject;
     }
   );

@@ -29,6 +29,11 @@ namespace margelo::nitro::mmfile {
     return method(_javaPart);
   }
 
+  void JHybridMmfilePlatformContextSpec::dispose() noexcept {
+    static const auto method = javaClassStatic()->getMethod<void()>("dispose");
+    method(_javaPart);
+  }
+
   // Properties
   
 

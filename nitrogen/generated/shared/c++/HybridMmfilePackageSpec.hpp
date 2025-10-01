@@ -28,9 +28,9 @@ namespace margelo::nitro::mmfile { struct ReadDirItem; }
 #include <optional>
 #include "HybridEncryptedMmfileSpec.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
-#include <NitroModules/Promise.hpp>
-#include <vector>
 #include "ReadDirItem.hpp"
+#include <vector>
+#include <NitroModules/Promise.hpp>
 
 namespace margelo::nitro::mmfile {
 
@@ -64,8 +64,8 @@ namespace margelo::nitro::mmfile {
 
     public:
       // Methods
-      virtual std::shared_ptr<margelo::nitro::mmfile::HybridMmfileSpec> openMmfile(const std::string& path, std::optional<bool> readOnly) = 0;
-      virtual std::shared_ptr<margelo::nitro::mmfile::HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) = 0;
+      virtual std::shared_ptr<HybridMmfileSpec> openMmfile(const std::string& path, std::optional<bool> readOnly) = 0;
+      virtual std::shared_ptr<HybridEncryptedMmfileSpec> openEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) = 0;
       virtual bool fileExists(const std::string& path) = 0;
       virtual double getFileSize(const std::string& path) = 0;
       virtual double getEncryptedFileSize(const std::string& path) = 0;
