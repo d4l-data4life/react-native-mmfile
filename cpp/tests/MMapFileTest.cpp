@@ -65,16 +65,18 @@ TEST(MMapFileTest, LockingDoesntDeleteFile) {
   size_t size = 1024;
 
   // Opens and locks the file
-  MMapFile file(filePath);
-  file.resize(size);
+  {
+    MMapFile file(filePath);
+    file.resize(size);
 
-  try {
-    MMapFile file2(filePath);
-    FAIL() << "Should have thrown an exception";
-  } catch (const std::runtime_error& e) {
+    try {
+      MMapFile file2(filePath);
+      FAIL() << "Should have thrown an exception";
+    } catch (const std::runtime_error& e) {
+    }
   }
 
   ASSERT_TRUE(fileExist(filePath));
   ASSERT_EQ(getFileSizeFromName(filePath), size);
-  file.clear();
+  remove(filePath.c_str());
 }
