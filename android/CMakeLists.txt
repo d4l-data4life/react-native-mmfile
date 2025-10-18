@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define C++ library and add all sources
 add_library(${PACKAGE_NAME} SHARED
         src/main/cpp/cpp-adapter.cpp
+        ../cpp/MMapFile.cpp
         ../cpp/HybridMmfile.cpp
         ../cpp/HybridMmfilePackage.cpp
 )

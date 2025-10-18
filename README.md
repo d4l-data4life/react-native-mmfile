@@ -65,6 +65,7 @@ The example app demonstrates the usage of `react-native-mmfile` and can be found
 
 ```bash
 cd example
+npm run preinstall
 npm install
 
 # For Android

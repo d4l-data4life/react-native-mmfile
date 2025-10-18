@@ -59,3 +59,22 @@ TEST(MMapFileTest, Locking) {
   MMapFile file3;
   ASSERT_THROW(file3.open(filePath), std::runtime_error);
 }
+
+TEST(MMapFileTest, LockingDoesntDeleteFile) {
+  const std::string filePath = "/tmp/testfile5";
+  size_t size = 1024;
+
+  // Opens and locks the file
+  MMapFile file(filePath);
+  file.resize(size);
+
+  try {
+    MMapFile file2(filePath);
+    FAIL() << "Should have thrown an exception";
+  } catch (const std::runtime_error& e) {
+  }
+
+  ASSERT_TRUE(fileExist(filePath));
+  ASSERT_EQ(getFileSizeFromName(filePath), size);
+  file.clear();
+}

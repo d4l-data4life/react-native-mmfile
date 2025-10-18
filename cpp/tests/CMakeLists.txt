@@ -35,6 +35,10 @@ set(TEST_SOURCES
 foreach(TEST_FILE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_FILE})
+    # Link implementation needed by MMapFile-based tests
+    if(TEST_NAME STREQUAL "MMapFileTest" OR TEST_NAME STREQUAL "MMapFileBench" OR TEST_NAME STREQUAL "MMapEncryptedFileTest")
+        target_sources(${TEST_NAME} PRIVATE ../MMapFile.cpp)
+    endif()
     target_link_libraries(${TEST_NAME} PRIVATE GTest::GTest GTest::Main pthread)
     target_include_directories(${TEST_NAME} PRIVATE ..)
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
