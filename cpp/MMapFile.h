@@ -12,6 +12,9 @@
 #include <fcntl.h>    // For open()
 #include <unistd.h>   // For ftruncate(), close()
 #include <unordered_set>
+#include <cstring>   // for std::memcpy, std::strerror
+#include <cerrno>    // for errno
+#include <cstdio>    // for std::remove
 
 // #include <android/log.h>
 // #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "rtnmmrray", __VA_ARGS__))
@@ -129,7 +132,7 @@ public:
         fd_ = ::open(filePath.c_str(), readOnly ? O_RDONLY : O_RDWR | O_CREAT, 0600);
         if (fd_ < 0)
         {
-            throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + strerror(errno));
+            throw std::runtime_error(std::string("Failed to create/open file: ") + filePath + " error: " + std::strerror(errno));
         }
         filePath_ = filePath;
         readOnly_ = readOnly;
@@ -253,7 +256,7 @@ public:
         {
             resize(minSize);
         }
-        memcpy(data_ + offset, data, length);
+        std::memcpy(data_ + offset, data, length);
     }
 
     // Read data from the memory-mapped region
@@ -268,7 +271,7 @@ public:
         {
             length = size() - offset;
         }
-        memcpy(data, data_ + offset, length);
+        std::memcpy(data, data_ + offset, length);
         return length;
     }
 
@@ -312,7 +315,7 @@ public:
         }
 
         if (msync(data_ + alignedOffset, length, MS_SYNC) == -1) [[unlikely]] {
-            throw std::runtime_error("Failed to sync memory-mapped file: " + std::string(strerror(errno)));
+            throw std::runtime_error("Failed to sync memory-mapped file: " + std::string(std::strerror(errno)));
         }
     }
 
