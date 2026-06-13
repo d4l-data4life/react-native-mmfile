@@ -1,0 +1,10 @@
+// Project-level base configuration for the example app.
+//
+// Machine-specific values (e.g. your Apple code-signing team) belong in
+// Local.private.xcconfig, which is gitignored so it is never committed:
+//
+//     DEVELOPMENT_TEAM = XXXXXXXXXX
+//
+// The include is optional, so a fresh checkout without the private file still
+// builds (you just pick a team manually for device builds).
+#include? "Local.private.xcconfig"
