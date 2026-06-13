@@ -13,6 +13,14 @@ __attribute__((always_inline)) inline uint32_t SubWord(uint32_t word) {
     return vreinterpretq_u32_u8(vaeseq_u8(bytes, vdupq_n_u8(0)))[0]; // Use AES instruction for S-box substitution
 }
 
+// RotWord rotates a 4-byte word: a 32-bit rotate-right by 24 (== rotate-left by 8),
+// as used by the AES key schedule. This replaces an AArch64-only `ror %w` inline
+// asm so the key expansion also builds in AArch32 (32-bit ARM). Compilers emit a
+// single rotate instruction for this idiom.
+__attribute__((always_inline)) inline uint32_t RotWord(uint32_t word) {
+    return (word >> 24) | (word << 8);
+}
+
 // Fix endianness for 32-bit words (if needed)
 __attribute__((always_inline)) static inline uint32x4_t FixEndianness32(uint32x4_t vector) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -66,12 +74,8 @@ public:
                 for (unsigned i = KEY_WORDS; i < (NUM_ROUNDS + 1) * 4; i += KEY_WORDS) {
                     uint32_t temp = roundKeysW[i - 1];
 
-                    // Perform RotWord, SubWord, and XOR with Rcon
-                    __asm__ volatile (
-                        "ROR %w[temp], %w[temp], #24"  // Rotate right by 24 bits (left by 8 bits)
-                        : [temp] "+r" (temp)
-                    );
-                    temp = SubWord(temp);   // SubWord
+                    // RotWord, SubWord, then XOR with Rcon
+                    temp = SubWord(RotWord(temp));
                     temp ^= *rconPtr++;     // XOR with Rcon
 
                     // XOR with the word 4 positions back
@@ -90,12 +94,8 @@ public:
                 for (unsigned i = KEY_WORDS; i < (NUM_ROUNDS + 1) * 4; i += KEY_WORDS) {
                     uint32_t temp = roundKeysW[i - 1];
 
-                    // Perform RotWord, SubWord, and XOR with Rcon
-                    __asm__ volatile (
-                        "ROR %w[temp], %w[temp], #24"  // Rotate right by 24 bits (left by 8 bits)
-                        : [temp] "+r" (temp)
-                    );
-                    temp = SubWord(temp);   // SubWord
+                    // RotWord, SubWord, then XOR with Rcon
+                    temp = SubWord(RotWord(temp));
                     temp ^= *rconPtr++;     // XOR with Rcon
 
                     // XOR with the word 6 positions back
@@ -116,12 +116,8 @@ public:
                 for (unsigned i = KEY_WORDS; i < (NUM_ROUNDS + 1) * 4; i += KEY_WORDS) {
                     uint32_t temp = roundKeysW[i - 1];
 
-                    // Perform RotWord, SubWord, and XOR with Rcon
-                    __asm__ volatile (
-                        "ROR %w[temp], %w[temp], #24"  // Rotate right by 24 bits (left by 8 bits)
-                        : [temp] "+r" (temp)
-                    );
-                    temp = SubWord(temp);   // SubWord
+                    // RotWord, SubWord, then XOR with Rcon
+                    temp = SubWord(RotWord(temp));
                     temp ^= *rconPtr++;     // XOR with Rcon
 
                     // XOR with the word 8 positions back
@@ -197,7 +193,15 @@ struct CIPHER_BLOCK<AES<KEY_LENGTH>> {
 };
 
 
-// Increment a 128-bit counter stored in a NEON register
+// Increment / add to a 128-bit big-endian counter held in a NEON register.
+//
+// The AArch64 path detects the low-half carry with vcgtq_u64, a 64-bit-lane
+// compare that only exists in AArch64. For AArch32 (32-bit ARM, e.g. armeabi-v7a
+// on an ARMv8 CPU) we do the same big-endian add with two scalar 64-bit halves
+// instead. Both paths must produce identical results so that a file encrypted on
+// one ABI decrypts correctly on the other.
+#if defined(__aarch64__)
+
 static inline uint8x16_t counterInc(uint8x16_t counter) {
     // Reinterpret as a 64-bit vector (uint64x2_t)
     uint64x2_t counter64x2 = FixEndianness64(vreinterpretq_u64_u8(counter));
@@ -217,10 +221,6 @@ static inline uint8x16_t counterInc(uint8x16_t counter) {
     return FixEndianness64(vreinterpretq_u8_u64(incremented));
 }
 
-static inline void counterInc(uint8_t *counter) {
-    vst1q_u8(counter, counterInc(vld1q_u8(counter)));
-}
-
 static inline uint8x16_t counterAdd(uint8x16_t counter, uint64_t delta) {
     // Reinterpret as a 64-bit vector (uint64x2_t)
     uint64x2_t counter64x2 = FixEndianness64(vreinterpretq_u64_u8(counter));
@@ -238,6 +238,38 @@ static inline uint8x16_t counterAdd(uint8x16_t counter, uint64_t delta) {
     incremented = vsubq_u64(incremented, vextq_u64(carry, carry, 1));
 
     return FixEndianness64(vreinterpretq_u8_u64(incremented));
+}
+
+#else // AArch32
+
+static inline uint8x16_t counterAdd(uint8x16_t counter, uint64_t delta) {
+    uint64x2_t v = vreinterpretq_u64_u8(counter);
+    uint64_t hi = vgetq_lane_u64(v, 0);   // most-significant 8 bytes (big-endian)
+    uint64_t lo = vgetq_lane_u64(v, 1);   // least-significant 8 bytes
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    hi = __builtin_bswap64(hi);
+    lo = __builtin_bswap64(lo);
+#endif
+    uint64_t newLo = lo + delta;
+    if (newLo < lo) ++hi;                 // propagate carry into the high half
+    lo = newLo;
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    hi = __builtin_bswap64(hi);
+    lo = __builtin_bswap64(lo);
+#endif
+    v = vsetq_lane_u64(hi, v, 0);
+    v = vsetq_lane_u64(lo, v, 1);
+    return vreinterpretq_u8_u64(v);
+}
+
+static inline uint8x16_t counterInc(uint8x16_t counter) {
+    return counterAdd(counter, 1);
+}
+
+#endif
+
+static inline void counterInc(uint8_t *counter) {
+    vst1q_u8(counter, counterInc(vld1q_u8(counter)));
 }
 
 

@@ -57,6 +57,11 @@ public:
     }
 
     void open(const std::string& filePath, const uint8_t *key, bool readOnly = false) {
+        if (!cpuHasAES()) [[unlikely]] {
+            throw std::runtime_error(
+                "This CPU does not provide the AES instructions required for encrypted files "
+                "(ARMv8 Cryptography Extensions).");
+        }
         file_.open(filePath, readOnly);
         aes_.setKey(key);
         try {

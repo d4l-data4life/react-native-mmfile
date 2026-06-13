@@ -41,6 +41,11 @@ bun add react-native-mmfile react-native-nitro-modules
 cd ios && pod install
 ```
 
+> [!NOTE]
+> **Supported Android ABIs.** The native code is built for `arm64-v8a`, `armeabi-v7a` and `x86_64`. The 32-bit `armeabi-v7a` library exists for 64-bit ARMv8 CPUs that run a 32-bit Android (e.g. the Samsung Galaxy A13): it executes in AArch32 but still uses the hardware AES instructions, so it requires the ARMv8 Cryptography Extensions. If your app pins `reactNativeArchitectures` in `android/gradle.properties`, make sure `armeabi-v7a` is included.
+>
+> **Minimum SDK is 28 (Android 9).** Every pre-ARMv8 32-bit CPU (which lacks the AES instructions) tops out at Android 8.1, so this floor guarantees the `armeabi-v7a` library only ever runs on a CPU that supports it — and keeps the app off the long-EOL Android 8. Consuming apps must therefore use `minSdkVersion >= 28`.
+
 ## Usage
 
 ```ts

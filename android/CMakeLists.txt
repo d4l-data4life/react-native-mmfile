@@ -20,6 +20,14 @@ if (CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a")
         target_compile_options(${PACKAGE_NAME} PRIVATE -march=armv8-a+crypto -O2)
 endif()
 
+# 32-bit ARM. Some 64-bit ARMv8 CPUs run a 32-bit OS (e.g. Samsung Galaxy A13) and
+# execute this ABI in AArch32, where the ARMv8 Cryptography Extensions are still
+# available. Target ARMv8-A so the AES intrinsics compile; a runtime HWCAP2_AES
+# check (cpuHasAES() in AES.h) guards the rare device that lacks them.
+if (CMAKE_ANDROID_ARCH_ABI STREQUAL "armeabi-v7a")
+        target_compile_options(${PACKAGE_NAME} PRIVATE -march=armv8-a+crypto -O2)
+endif()
+
 if (CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
         target_compile_options(${PACKAGE_NAME} PRIVATE -maes -msse4.2 -O2)
 endif()
