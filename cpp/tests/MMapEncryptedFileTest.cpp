@@ -14,7 +14,7 @@ TEST(MMapEncryptedFileTest, FileFormatMismatch) {
 
   {
     std::string key(16, '\0');
-    ASSERT_THROW(MMapEncryptedFile(filePath, reinterpret_cast<const uint8_t*>(key.data())), std::runtime_error);
+    ASSERT_THROW(MMapEncryptedFile<128>(filePath, reinterpret_cast<const uint8_t*>(key.data())), std::runtime_error);
   }
 
   {
@@ -30,7 +30,7 @@ TEST(MMapEncryptedFileTest, CreatesAndMapsFile) {
   std::string key(16, '\0');
   fillRandom(key);
 
-  MMapEncryptedFile file(filePath, reinterpret_cast<const uint8_t*>(key.data()));
+  MMapEncryptedFile<128> file(filePath, reinterpret_cast<const uint8_t*>(key.data()));
   ASSERT_EQ(file.size(), 0);
 
   // Write and read data
@@ -48,7 +48,7 @@ TEST(MMapEncryptedFileTest, ReopenTest) {
 
   std::string key(16, '\0');
   fillRandom(key);
-  MMapEncryptedFile file(filePath, reinterpret_cast<const uint8_t*>(key.data()));
+  MMapEncryptedFile<128> file(filePath, reinterpret_cast<const uint8_t*>(key.data()));
   file.clear();
   ASSERT_EQ(file.size(), 0);
   std::string str = "Hello World";
@@ -56,7 +56,7 @@ TEST(MMapEncryptedFileTest, ReopenTest) {
   ASSERT_EQ(file.size(), 11);
   file.close();
 
-  MMapEncryptedFile file2(filePath, reinterpret_cast<const uint8_t*>(key.data()));
+  MMapEncryptedFile<128> file2(filePath, reinterpret_cast<const uint8_t*>(key.data()));
   uint8_t buffer[15];
   size_t readCount = file2.read(3, buffer, 15);
   ASSERT_EQ(readCount, 8);
@@ -66,5 +66,5 @@ TEST(MMapEncryptedFileTest, ReopenTest) {
 TEST(MMapEncryptedFileTest, ThrowsForInvalidFile) {
   std::string key(16, '\0');
   fillRandom(key);
-  ASSERT_THROW(MMapEncryptedFile("/invalid/path", reinterpret_cast<const uint8_t*>(key.data())), std::runtime_error);
+  ASSERT_THROW(MMapEncryptedFile<128>("/invalid/path", reinterpret_cast<const uint8_t*>(key.data())), std::runtime_error);
 }

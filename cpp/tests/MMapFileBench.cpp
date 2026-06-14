@@ -40,7 +40,7 @@ protected:
 
     std::string mmfilePath, mmencryptedfilePath, filePath;
     MMapFile mmapFile;
-    MMapEncryptedFile mmapEncryptedFile;
+    MMapEncryptedFile<128> mmapEncryptedFile;
     int fd;
 };
 
