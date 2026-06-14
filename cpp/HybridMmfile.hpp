@@ -54,10 +54,16 @@ class HybridEncryptedMmfile : public HybridEncryptedMmfileSpec
 public:
     HybridEncryptedMmfile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) : HybridObject(TAG)
     {
-        if (key->size() != 16) [[unlikely]] {
-            throw std::runtime_error("encryptionKey must be of length 16 but is " + std::to_string(key->size()));
-        }
-        instance = new MMapEncryptedFile(path, key->data(), readOnly.has_value() ? readOnly.value() : false);
+        bool ro = readOnly.has_value() ? readOnly.value() : false;
+        keyLength_ = key->size() * 8;
+        if (key->size() == 16)
+            instance = new MMapEncryptedFile<128>(path, key->data(), ro);
+        else if (key->size() == 24)
+            instance = new MMapEncryptedFile<192>(path, key->data(), ro);
+        else if (key->size() == 32)
+            instance = new MMapEncryptedFile<256>(path, key->data(), ro);
+        else [[unlikely]]
+            throw std::runtime_error("encryptionKey must be 16, 24, or 32 bytes (AES-128/192/256) but is " + std::to_string(key->size()));
         if (instance == nullptr) [[unlikely]] {
             throw std::runtime_error("Failed to create MMapEncryptedFile instance");
         }
@@ -78,7 +84,8 @@ public:
     double read(double offset, const std::shared_ptr<ArrayBuffer>& buffer) override;
 
 private:
-    MMapEncryptedFile *instance;
+    MMapEncryptedFileBase *instance;
+    unsigned keyLength_ = 128;  // AES key length in bits (128, 192, or 256)
 };
 
 } // namespace margelo::nitro::mmfile

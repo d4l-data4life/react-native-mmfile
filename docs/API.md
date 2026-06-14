@@ -33,7 +33,7 @@ Existing files will be opened, while new files will be created including all par
   - iOS: `<app_home>/Documents/rtnmmfile`
 
   You can change the baseDirectory property to any other directory, but it must be writable by the app.  
-- **key**: The encryption key is passed as an argument and must be a 128-bit key (16 bytes) stored in an `ArrayBuffer`.
+- **key**: The encryption key is passed as an argument and must be a 128-, 192-, or 256-bit key (16, 24, or 32 bytes) stored in an `ArrayBuffer`, selecting AES-128, AES-192, or AES-256 respectively.
 - **readOnly**: The optional argument allows to open an existing file read-only, attempts to modify it, will throw an error.
 
 The function `readDir()` reads a directory and returns a promise with an array of `ReadDirItem` objects. The promise will be rejected if the path is not a directory or if the directory cannot be read.
@@ -57,13 +57,26 @@ import { Mmfile } from '@d4l/react-native-mmfile';
  // open a file
 let file = Mmfile.openMmfile('file1');
 
-// 128-bit example key
-const key = new Uint8Array([
-    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
+// 128-bit key → AES-128
+const key128 = new Uint8Array([
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff]);
+
+// 192-bit key → AES-192
+const key192 = new Uint8Array([
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77]);
+
+// 256-bit key → AES-256
+const key256 = new Uint8Array([
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
     0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff]);
 
 // open a file with encryption
-let encryptedFile = Mmfile.openEncryptedMmfile('file2', key.buffer);
+let encryptedFile = Mmfile.openEncryptedMmfile('file2', key128.buffer);
 ```
 
 ## Mmfile and EncryptedMmfile

@@ -6,7 +6,24 @@
 #include "MMapFile.h"
 #include "AES.h"
 
-// header size should be a multiple of 16 bytes (64 bytes)
+class MMapEncryptedFileBase {
+public:
+    virtual ~MMapEncryptedFileBase() = default;
+    virtual void open(const std::string& filePath, const uint8_t *key, bool readOnly = false) = 0;
+    virtual void close() = 0;
+    virtual void write(size_t offset, const uint8_t *data, size_t length) = 0;
+    virtual size_t read(size_t offset, uint8_t *data, size_t length) const = 0;
+    virtual void append(const uint8_t *data, size_t length, bool strictResize = false) = 0;
+    virtual size_t size() const = 0;
+    virtual size_t capacity() const = 0;
+    virtual bool readOnly() const = 0;
+    virtual const std::string& filePath() const = 0;
+    virtual bool isOpen() const = 0;
+    virtual void resize(size_t newSize, bool strictResize = false) = 0;
+    virtual void clear() = 0;
+};
+
+// File header — size must be a multiple of 16 bytes (64 bytes)
 struct EncryptedFileHeader {
     uint16_t magic;
     uint16_t version;
@@ -25,7 +42,8 @@ template <> static inline uint32_t FixEndianness(uint32_t val) { return __builti
 template <> static inline uint64_t FixEndianness(uint64_t val) { return __builtin_bswap64(val); }
 #endif
 
-class MMapEncryptedFile
+template <unsigned KEY_LENGTH = 128>
+class MMapEncryptedFile : public MMapEncryptedFileBase
 {
 public:
     MMapEncryptedFile() {}
@@ -166,7 +184,8 @@ public:
 private:
 public:
     MMapFile file_;
-    AES<128> aes_, aesData_;
+    AES<KEY_LENGTH> aes_;   // wraps/unwraps the data key using the user-provided key
+    AES<128> aesData_;      // encrypts/decrypts file data using the randomly-generated data key
 
     static const uint16_t MAGIC = 0xDA7A;
 

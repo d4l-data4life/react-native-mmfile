@@ -96,6 +96,10 @@ bool HybridEncryptedMmfile::getIsOpen() {
 
 void HybridEncryptedMmfile::open(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> readOnly) {
     DEBUG_LOG("[Encrypted] open(" << path << ", key=..., readOnly=" << (readOnly ? std::to_string(*readOnly) : "nullopt") << ")");
+    if (key->size() * 8 != keyLength_) [[unlikely]] {
+        throw std::runtime_error("encryptionKey size mismatch: file was opened with AES-" + std::to_string(keyLength_) +
+            " but key has " + std::to_string(key->size()) + " bytes");
+    }
     instance->open(path, key->data(), readOnly.has_value() ? readOnly.value() : false);
 }
 

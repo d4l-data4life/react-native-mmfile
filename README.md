@@ -16,7 +16,7 @@
 - 🚀 **High Performance:** Leverages mmap for memory-mapped file I/O, significantly outperforming [react-native-fs](https://github.com/itinance/react-native-fs).
 Built on the new React Native architecture with [NitroModules](https://nitro.margelo.com), it enables zero-copy operations and direct ArrayBuffer access.
 - 🛠️ **Simple API:** Easily `read`, `write` or `append` files using the `Mmfile` or `EncryptedMmfile` objects.
-- 🔒 **Encryption:** Supports AES-128 in CTR mode for real-time encryption/decryption and random access. The cipher is implemented in C++ and optimized for performance using NEON (ARM) and AES-NI (Intel) instructions.
+- 🔒 **Encryption:** Supports AES-128, AES-192, and AES-256 in CTR mode for real-time encryption/decryption and random access. The cipher is implemented in C++ and optimized for performance using NEON (ARM) and AES-NI (Intel) instructions.
 - 📦 **Zero Dependencies:** No external libraries required—pure, efficient native code.
 - 📱 **Cross-Platform:** Seamlessly works on both iOS and Android
 

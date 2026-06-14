@@ -82,7 +82,7 @@ public:
         temp3 = _mm_xor_si128(temp3, temp2);
     }
 
-    // AES Key Expansion for AES-128
+    // AES Key Expansion (supports AES-128, AES-192, and AES-256)
     void setKey(const uint8_t *key) {
         switch (KEY_LENGTH) {
             case 128:

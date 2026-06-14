@@ -58,7 +58,7 @@ public:
     __attribute__((aligned(4)))
     uint8x16_t roundKeys[NUM_ROUNDS + 1];                           // round keys
 
-    // AES Key Expansion for AES-128
+    // AES Key Expansion (supports AES-128, AES-192, and AES-256)
     void setKey(const uint8_t *key) {
         uint32_t *roundKeysW = (uint32_t *)roundKeys;
         const uint32_t *keyW = (const uint32_t *)key;
