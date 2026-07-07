@@ -11,5 +11,5 @@ export async function prepareReactNativeFS(): Promise<void> {
 }
 
 export async function appendReactNativeFS(buffer: ArrayBuffer, str: string): Promise<void> {
-  return appendFile(path, str)
+  return appendFile(path, str);
 }
