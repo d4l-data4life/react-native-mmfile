@@ -1,8 +1,8 @@
-import {openMmfile} from '@d4l/react-native-mmfile';
+import { Mmfile } from '@d4l/react-native-mmfile';
 
 const path = 'k1';
 
-let mmapFile = openMmfile(path)
+const mmapFile = Mmfile.openMmfile(path);
 
 export function prepareMmfile() {
   mmapFile.clear();
