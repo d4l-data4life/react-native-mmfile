@@ -7,4 +7,6 @@
 5. Commit the changes
 6. Push the changes to the repository
 7. On GitHub, create a new release with a tag matching the version
-8. Publish the release to npm with `npm publish`
+
+Publishing the release to npm is then done by the [publish workflow](.github/workflows/publish.yaml).
+It can also be started manually via _Run workflow_ on the workflow page.
