@@ -21,6 +21,8 @@ namespace margelo::nitro::mmfile {
       prototype.registerHybridMethod("fileExists", &HybridMmfilePackageSpec::fileExists);
       prototype.registerHybridMethod("getFileSize", &HybridMmfilePackageSpec::getFileSize);
       prototype.registerHybridMethod("getEncryptedFileSize", &HybridMmfilePackageSpec::getEncryptedFileSize);
+      prototype.registerHybridMethod("isLegacyEncryptedFile", &HybridMmfilePackageSpec::isLegacyEncryptedFile);
+      prototype.registerHybridMethod("rekeyEncryptedFile", &HybridMmfilePackageSpec::rekeyEncryptedFile);
       prototype.registerHybridMethod("readDir", &HybridMmfilePackageSpec::readDir);
       prototype.registerHybridMethod("readDirSync", &HybridMmfilePackageSpec::readDirSync);
       prototype.registerHybridMethod("unlink", &HybridMmfilePackageSpec::unlink);

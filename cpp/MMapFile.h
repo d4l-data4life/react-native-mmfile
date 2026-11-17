@@ -319,6 +319,17 @@ public:
         }
     }
 
+    // Write the mapped pages and the file metadata (size) to storage
+    inline void flush() {
+        assertFileIsOpen();
+        if (data_ && size_ > 0 && msync(data_, size_, MS_SYNC) == -1) [[unlikely]] {
+            throw std::runtime_error("Failed to sync memory-mapped file: " + std::string(std::strerror(errno)));
+        }
+        if (fsync(fd_) == -1) [[unlikely]] {
+            throw std::runtime_error("Failed to fsync file: " + std::string(std::strerror(errno)));
+        }
+    }
+
     inline void assertFileIsOpen() const {
         if (fd_ < 0) [[unlikely]] {
             throw std::runtime_error("File is not open");

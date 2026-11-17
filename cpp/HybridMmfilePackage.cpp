@@ -47,6 +47,27 @@ double HybridMmfilePackage::getEncryptedFileSize(const std::string& path) {
     return size == 0 ? 0 : getFileSize(getAbsolutePath(path)) - sizeof(EncryptedFileHeader);
 }
 
+bool HybridMmfilePackage::isLegacyEncryptedFile(const std::string& path) {
+    DEBUG_LOG("isLegacyEncryptedFile(" << path << ")");
+    return ::isLegacyEncryptedFile(getAbsolutePath(path));
+}
+
+bool HybridMmfilePackage::rekeyEncryptedFile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> force) {
+    DEBUG_LOG("rekeyEncryptedFile(" << path << ", key=..., force=" << (force ? std::to_string(*force) : "nullopt") << ")");
+    std::string absPath = getAbsolutePath(path);
+    // Outside the data directories, so a leftover of an interrupted rekey is never
+    // listed next to the files. Calls run one at a time, so one name is enough.
+    std::string tmpPath = getAbsolutePath(".rekey/pending");
+    bool f = force.has_value() && force.value();
+    switch (key->size()) {
+        case 16: return ::rekeyEncryptedFile<128>(absPath, tmpPath, key->data(), f);
+        case 24: return ::rekeyEncryptedFile<192>(absPath, tmpPath, key->data(), f);
+        case 32: return ::rekeyEncryptedFile<256>(absPath, tmpPath, key->data(), f);
+        default:
+            throw std::runtime_error("encryptionKey must be 16, 24, or 32 bytes (AES-128/192/256) but is " + std::to_string(key->size()));
+    }
+}
+
 static std::vector<ReadDirItem> _readDir(const std::string& absPath) {
     DEBUG_LOG("_readDir(" << absPath << ")");
     std::vector<ReadDirItem> items;
