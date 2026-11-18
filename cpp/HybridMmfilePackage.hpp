@@ -27,8 +27,6 @@ public:
     bool fileExists(const std::string& path) override;
     double getFileSize(const std::string& path) override;
     double getEncryptedFileSize(const std::string& path) override;
-    bool isLegacyEncryptedFile(const std::string& path) override;
-    bool rekeyEncryptedFile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> force) override;
 
     std::vector<ReadDirItem> readDirSync(const std::string& path) override;
     std::shared_ptr<Promise<std::vector<ReadDirItem>>> readDir(const std::string& path) override;

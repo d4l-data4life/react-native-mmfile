@@ -67,8 +67,6 @@ namespace margelo::nitro::mmfile {
       virtual bool fileExists(const std::string& path) = 0;
       virtual double getFileSize(const std::string& path) = 0;
       virtual double getEncryptedFileSize(const std::string& path) = 0;
-      virtual bool isLegacyEncryptedFile(const std::string& path) = 0;
-      virtual bool rekeyEncryptedFile(const std::string& path, const std::shared_ptr<ArrayBuffer>& key, std::optional<bool> force) = 0;
       virtual std::shared_ptr<Promise<std::vector<ReadDirItem>>> readDir(const std::string& path) = 0;
       virtual std::vector<ReadDirItem> readDirSync(const std::string& path) = 0;
       virtual std::shared_ptr<Promise<void>> unlink(const std::string& path) = 0;
