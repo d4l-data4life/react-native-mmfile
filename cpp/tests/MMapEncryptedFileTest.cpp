@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../MMapEncryptedFile.h"
 #include "../AES.h"
+#include <cstdio>
 
 TEST(MMapEncryptedFileTest, FileFormatMismatch) {
   const std::string filePath = "/tmp/testfile2";
@@ -67,4 +68,43 @@ TEST(MMapEncryptedFileTest, ThrowsForInvalidFile) {
   std::string key(16, '\0');
   fillRandom(key);
   ASSERT_THROW(MMapEncryptedFile<128>("/invalid/path", reinterpret_cast<const uint8_t*>(key.data())), std::runtime_error);
+}
+
+TEST(FillRandomTest, ProducesDistinctNonZeroOutput) {
+  std::string a(32, '\0'), b(32, '\0');
+  fillRandom(a);
+  fillRandom(b);
+  ASSERT_NE(a, b);
+  ASSERT_NE(a, std::string(32, '\0'));
+  // larger than a single getrandom/SecRandomCopyBytes chunk on some platforms
+  std::string large(1 << 20, '\0');
+  fillRandom(large);
+  ASSERT_NE(large.substr(0, 64), std::string(64, '\0'));
+  ASSERT_NE(large.substr(large.size() - 64), std::string(64, '\0'));
+}
+
+TEST(MMapEncryptedFileTest, NewFilesGetDistinctKeysAndIVs) {
+  const std::string pathA = "/tmp/testfile-keys-a";
+  const std::string pathB = "/tmp/testfile-keys-b";
+  std::string key(16, '\0');
+  fillRandom(key);
+  const auto* k = reinterpret_cast<const uint8_t*>(key.data());
+  const std::string content = "same content";
+
+  auto headerKeyAndIV = [&](const std::string& path) {
+    {
+      MMapEncryptedFile<128> file(path, k);
+      file.clear();
+      file.append(reinterpret_cast<const uint8_t*>(content.data()), content.size());
+    }
+    MMapFile raw(path, true);
+    auto* h = reinterpret_cast<const EncryptedFileHeader*>(raw.data());
+    std::string bytes = std::string(reinterpret_cast<const char*>(h->encryptedDataKey), 16) +
+                        std::string(reinterpret_cast<const char*>(h->iv), 16);
+    raw.close();
+    std::remove(path.c_str());
+    return bytes;
+  };
+
+  ASSERT_NE(headerKeyAndIV(pathA), headerKeyAndIV(pathB));
 }
