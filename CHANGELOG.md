@@ -11,13 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The iOS pod links the `Security` framework
-
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+### Security
+
+## [1.7.0] - 2026-11-19
+
+### Changed
+
+- The iOS pod links the `Security` framework
 
 ### Security
 
@@ -129,7 +135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[1.7.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.6.0...HEAD
+[Unreleased]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.7.0...HEAD
+[1.7.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.6.0...1.7.0
 [1.6.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.3.5...1.4.0
