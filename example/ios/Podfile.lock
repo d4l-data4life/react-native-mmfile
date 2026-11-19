@@ -8,7 +8,7 @@ PODS:
   - hermes-engine (0.79.7):
     - hermes-engine/Pre-built (= 0.79.7)
   - hermes-engine/Pre-built (0.79.7)
-  - NitroMmfile (1.6.0):
+  - NitroMmfile (1.7.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2053,7 +2053,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 13c84524b3b6e884b2cf3b3b1e002ffd147d88a3
-  NitroMmfile: 1c526856e387cb2ecd8826665691854a6b34b301
+  NitroMmfile: 11368d4c79a83ab5e781a381f5623be0fdb436b1
   NitroModules: fe7084d26cd7aa83c91ada87bfbbf25e0d82f3eb
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: b9b1716eec53aaeaa859aa45e27de7b615cff732
@@ -2125,4 +2125,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 60ddde8206a267ded3ce44b6b659d874dcb0f645
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.17.0
