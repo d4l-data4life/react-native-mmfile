@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The iOS pod links the `Security` framework
+
 ### Deprecated
 
 ### Removed
@@ -19,15 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [1.7.0] - 2026-11-19
-
-### Changed
-
-- The iOS pod links the `Security` framework
-
-### Security
-
-- Generate the data key and IV of encrypted files with the OS random number generator (`SecRandomCopyBytes` on iOS, `getrandom(2)` with a `/dev/urandom` fallback on Android) instead of a Mersenne Twister seeded with 32 bits; the file format is unchanged and files created by earlier versions keep their keys
+- Generate the data key and IV of encrypted files with a cryptographically secure random number generator
 
 ## [1.6.0] - 2026-07-10
 
@@ -135,8 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.7.0...HEAD
-[1.7.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.6.0...1.7.0
+[1.7.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.6.0...HEAD
 [1.6.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/d4l-data4life/react-native-mmfile/compare/1.3.5...1.4.0
